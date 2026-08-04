@@ -1,0 +1,27 @@
+{
+  "name": "team5-backend",
+  "version": "1.0.0",
+  "description": "Team5 Backend",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kainos-birmingham-academy-2026/team5-backend.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/kainos-birmingham-academy-2026/team5-backend/issues"
+  },
+  "homepage": "https://github.com/kainos-birmingham-academy-2026/team5-backend#readme",
+  "devDependencies": {
+    "@types/express": "^5.0.6",
+    "@types/node": "^26.1.2",
+    "express": "^5.2.1",
+    "tsx": "^4.23.5",
+    "typescript": "^7.0.2"
+  }
+}
