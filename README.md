@@ -1,13 +1,5 @@
 # Team 5 Backend
 
-## Problem Statement
-
-Currently within Kainos there is not one source of truth to view job roles and the relevant information attached (e.g. job descriptions, capability, competencies, banding, training etc). This can be confusing and time consuming for employees to retrieve the relevant job role information.
-
-## Vision
-
-An online job application that serves both Kainos recruitment admin to retrieve and update job roles and their relevant information, and applicants to apply for roles.
-
 ## Current Repository Setup
 
 This repository contains the backend service foundation for the Team 5 application. It is currently set up as a Node.js and TypeScript Express API starter with a basic app entrypoint and health endpoint.
