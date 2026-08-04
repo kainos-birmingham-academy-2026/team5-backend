@@ -1,27 +1,36 @@
 {
-  "name": "team5-backend",
+  "name": "web-starter-day-1",
   "version": "1.0.0",
-  "description": "Team5 Backend",
-  "main": "index.js",
+  "private": true,
+  "description": "Example Node.js + TypeScript CRUD starter for expenses",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/index.js",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/kainos-birmingham-academy-2026/team5-backend.git"
+  "dependencies": {
+    "@prisma/client": "^6.19.3",
+    "express": "^4.21.2",
+    "zod": "^4.4.3"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/kainos-birmingham-academy-2026/team5-backend/issues"
+  "vitest": {
+    "environment": "node"
   },
-  "homepage": "https://github.com/kainos-birmingham-academy-2026/team5-backend#readme",
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
+  },
   "devDependencies": {
-    "@types/express": "^5.0.6",
-    "@types/node": "^26.1.2",
-    "express": "^5.2.1",
-    "tsx": "^4.23.5",
-    "typescript": "^7.0.2"
+    "@types/express": "^5.0.3",
+    "@types/node": "^24.1.0",
+    "@types/supertest": "^7.2.1",
+    "@vitest/coverage-v8": "^4.1.10",
+    "prisma": "^6.19.3",
+    "supertest": "^7.2.2",
+    "tsx": "^4.20.4",
+    "typescript": "^5.9.2",
+    "vitest": "^4.1.10"
   }
 }
