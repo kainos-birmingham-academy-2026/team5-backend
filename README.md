@@ -1,57 +1,68 @@
 # Team 5 Backend
 
-## Current Repository Setup
+Backend API for managing Job Roles using Node.js, TypeScript, Express, and Prisma.
 
-This repository contains the backend service foundation for the Team 5 application. It is currently set up as a Node.js and TypeScript Express API starter with a basic app entrypoint and health endpoint.
-
-### Technology Stack
+## Tech Stack
 
 - Node.js
 - TypeScript
 - Express
+- Prisma ORM (`@prisma/client`)
 - Zod
-- Prisma Client
 - Vitest + Supertest
+- Biome (format/lint)
 
-### Project Structure
+## Current Repository Architecture
 
 ```text
 .
 ├── src/
-│   ├── app.ts
-│   └── index.ts
+│   ├── app.ts                      # Express app setup + route registration
+│   ├── index.ts                    # Server bootstrap (port 3000)
+│   ├── prismaClient.ts             # Prisma client instance
+│   ├── controllers/
+│   │   └── jobRoleController.ts    # HTTP/controller layer
+│   ├── services/
+│   │   └── jobRoleService.ts       # Business/service layer
+│   ├── daos/
+│   │   └── jobRoleDao.ts           # Data access with Prisma
+│   ├── routes/
+│   │   └── jobRoleRouter.ts        # Route wiring
+│   ├── dtos/
+│   │   └── jobRoleDto.ts           # DTOs + Zod schemas
+│   ├── mappers/
+│   │   └── jobRoleMapper.ts        # Domain -> response mapping
+│   └── models/
+│       ├── jobRole.ts              # Domain model
+│       └── jobRoleResponse.ts      # Response model
+├── prisma/
+│   ├── schema.prisma
+│   ├── seed.ts
+│   └── migrations/
 ├── tests/
 │   ├── app.test.ts
-│   └── index.test.ts
-├── package-lock.json
+│   ├── index.test.ts
+│   ├── controllers/
+│   │   └── jobRoleController.test.ts
+│   ├── services/
+│   │   └── jobRoleService.test.ts
+│   └── routes/
+│       └── jobRoleRoutes.test.ts
 ├── package.json
 └── tsconfig.json
 ```
 
-### Available Scripts
+## API Endpoints
 
-- `npm run dev`: Run the API in watch mode using `tsx`.
-- `npm run build`: Compile TypeScript into `dist/`.
-- `npm start`: Start the compiled app from `dist/index.js`.
-- `npm test`: Run tests once with Vitest.
-- `npm run test:watch`: Run tests in watch mode.
-- `npm run test:coverage`: Run tests with coverage.
+- `GET /` - Welcome message
+- `GET /health` - Service health status
+- `GET /job-roles` - List all job roles
+- `GET /job-roles/:id` - Get job role by id
+- `POST /job-roles` - Create job role
+- `PUT /job-roles/:id` - Update job role
+- `DELETE /job-roles/:id` - Delete job role
 
-### Current API Endpoints
-
-- `GET /`: Returns a welcome message.
-- `GET /health`: Returns service status and current server time.
-
-Example health response:
-
-```json
-{
-	"status": "UP",
-	"timestamp": "10:31:52 AM"
-}
-```
-
-### Local Development
+## How to Run
 
 1. Install dependencies:
 
@@ -59,14 +70,56 @@ Example health response:
 npm install
 ```
 
-2. Start the development server:
+2. (If needed for DB-backed flows) ensure `DATABASE_URL` is set in `.env`.
+
+3. Start dev server:
 
 ```bash
 npm run dev
 ```
 
-3. Verify service health:
+4. Build and run production build:
 
 ```bash
-curl http://localhost:3000/health
+npm run build
+npm start
+```
+
+Server runs on `http://localhost:3000`.
+
+## How to Test
+
+Run all tests once:
+
+```bash
+npm test
+```
+
+Watch mode:
+
+```bash
+npm run test:watch
+```
+
+Coverage:
+
+```bash
+npm run test:coverage
+```
+
+Run specific test suites:
+
+```bash
+npx vitest run tests/controllers/jobRoleController.test.ts
+npx vitest run tests/services/jobRoleService.test.ts
+npx vitest run tests/routes/jobRoleRoutes.test.ts
+```
+
+## Useful Quality Commands
+
+```bash
+npm run format
+npm run lint
+npm run check
+npm run ci:check
 ```
