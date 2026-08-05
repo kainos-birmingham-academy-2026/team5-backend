@@ -19,7 +19,7 @@ model JobRole {
   location     String
   capabilityId Int
   bandId       Int
-  closingDate  String
+  closingDate  DateTime
   status       String
 
   capability Capability @relation(fields: [capabilityId], references: [capabilityId])
