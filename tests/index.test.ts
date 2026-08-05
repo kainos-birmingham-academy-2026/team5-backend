@@ -7,7 +7,7 @@ describe("server bootstrap", () => {
 	});
 
 	it("starts listening on port 3000 and logs startup messages", async () => {
-		const listenMock = vi.fn((port: number, callback: () => void) => {
+		const listenMock = vi.fn((_port: number, callback: () => void) => {
 			callback();
 			return {};
 		});
