@@ -5,12 +5,11 @@ const app = express();
 app.use(express.json());
 
 app.get("/", (req, res) => {
-  res.json({ message: "Welcome to the API" });
+	res.json({ message: "Welcome to the API" });
 });
 
 app.get("/health", (req, res) => {
-  res.json({ status: "UP", timestamp: new Date().toLocaleTimeString() });
+	res.json({ status: "UP", timestamp: new Date().toLocaleTimeString() });
 });
-
 
 export default app;
