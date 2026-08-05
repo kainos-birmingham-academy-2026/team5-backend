@@ -20,7 +20,7 @@ This repository contains the backend service foundation for the Team 5 applicati
 ├── src/
 │   ├── app.ts
 │   └── index.ts
-├── dist/
+├── package-lock.json
 ├── package.json
 └── tsconfig.json
 ```
