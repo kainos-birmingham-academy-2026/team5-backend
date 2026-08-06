@@ -42,8 +42,8 @@ export class JobRoleDao {
 			...jobRoleData,
 			...(jobRoleData.closingDate
 				? {
-					closingDate: this.toPrismaClosingDate(jobRoleData.closingDate),
-				}
+						closingDate: this.toPrismaClosingDate(jobRoleData.closingDate),
+					}
 				: {}),
 		};
 	}

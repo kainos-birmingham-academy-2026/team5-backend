@@ -146,16 +146,23 @@ describe("JobRoleController", () => {
 		};
 		const req = createMockReq({ body: payload });
 		const res = createMockRes();
-		vi.mocked(serviceMock.create).mockRejectedValue(new Error("Capability 1 does not exist"));
+		vi.mocked(serviceMock.create).mockRejectedValue(
+			new Error("Capability 1 does not exist"),
+		);
 
 		await controller.createJobRole(req, res);
 
 		expect(res.status).toHaveBeenCalledWith(400);
-		expect(res.json).toHaveBeenCalledWith({ error: "Capability 1 does not exist" });
+		expect(res.json).toHaveBeenCalledWith({
+			error: "Capability 1 does not exist",
+		});
 	});
 
 	it("updateJobRole returns 400 for invalid id", async () => {
-		const req = createMockReq({ params: { id: "0" } as Request["params"], body: { status: "Closed" } });
+		const req = createMockReq({
+			params: { id: "0" } as Request["params"],
+			body: { status: "Closed" },
+		});
 		const res = createMockRes();
 
 		await controller.updateJobRole(req, res);
@@ -166,14 +173,19 @@ describe("JobRoleController", () => {
 	});
 
 	it("updateJobRole returns 400 when body is empty", async () => {
-		const req = createMockReq({ params: { id: "1" } as Request["params"], body: {} });
+		const req = createMockReq({
+			params: { id: "1" } as Request["params"],
+			body: {},
+		});
 		const res = createMockRes();
 
 		await controller.updateJobRole(req, res);
 
 		expect(serviceMock.update).not.toHaveBeenCalled();
 		expect(res.status).toHaveBeenCalledWith(400);
-		expect(res.json).toHaveBeenCalledWith({ error: "No data provided for update" });
+		expect(res.json).toHaveBeenCalledWith({
+			error: "No data provided for update",
+		});
 	});
 
 	it("updateJobRole returns 404 when target does not exist", async () => {
@@ -220,7 +232,9 @@ describe("JobRoleController", () => {
 			body: { status: "Closed" },
 		});
 		const res = createMockRes();
-		vi.mocked(serviceMock.update).mockRejectedValue(new Error("Band 999 does not exist"));
+		vi.mocked(serviceMock.update).mockRejectedValue(
+			new Error("Band 999 does not exist"),
+		);
 
 		await controller.updateJobRole(req, res);
 

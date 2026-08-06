@@ -107,7 +107,9 @@ describe("Job Role Routes", () => {
 	});
 
 	it("POST /job-roles returns 400 when service throws", async () => {
-		serviceMock.create.mockRejectedValue(new Error("Capability 2 does not exist"));
+		serviceMock.create.mockRejectedValue(
+			new Error("Capability 2 does not exist"),
+		);
 
 		const response = await request(app).post("/job-roles").send({
 			jobRoleId: 3,
