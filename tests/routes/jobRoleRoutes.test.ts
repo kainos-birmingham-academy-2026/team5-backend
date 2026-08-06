@@ -28,8 +28,8 @@ describe("Job Role Routes", () => {
 				jobRoleId: 1,
 				roleName: "Backend Engineer",
 				location: "Cairo",
-				capabilityId: 1,
-				bandId: 2,
+				capabilityName: "Engineering",
+				bandName: "Band 2",
 				closingDate: "2027-12-31",
 				status: "Open",
 			},
@@ -48,8 +48,8 @@ describe("Job Role Routes", () => {
 			jobRoleId: 1,
 			roleName: "Backend Engineer",
 			location: "Cairo",
-			capabilityId: 1,
-			bandId: 2,
+			capabilityName: "Engineering",
+			bandName: "Band 2",
 			closingDate: "2027-12-31",
 			status: "Open",
 		};
@@ -88,12 +88,21 @@ describe("Job Role Routes", () => {
 			closingDate: "2027-10-10",
 			status: "Open",
 		};
-		serviceMock.create.mockResolvedValue(payload);
+		const created = {
+			jobRoleId: 3,
+			roleName: "QA Engineer",
+			location: "Remote",
+			capabilityName: "Quality",
+			bandName: "Band 1",
+			closingDate: "2027-10-10",
+			status: "Open",
+		};
+		serviceMock.create.mockResolvedValue(created);
 
 		const response = await request(app).post("/job-roles").send(payload);
 
 		expect(response.status).toBe(201);
-		expect(response.body).toEqual(payload);
+		expect(response.body).toEqual(created);
 	});
 
 	it("POST /job-roles returns 400 when required fields missing", async () => {
@@ -130,8 +139,8 @@ describe("Job Role Routes", () => {
 			jobRoleId: 1,
 			roleName: "Backend Engineer",
 			location: "Cairo",
-			capabilityId: 1,
-			bandId: 2,
+			capabilityName: "Engineering",
+			bandName: "Band 2",
 			closingDate: "2027-12-31",
 			status: "Closed",
 		};

@@ -15,6 +15,8 @@ describe("JobRoleService", () => {
 		2,
 		"2027-12-31",
 		"Open",
+		"Engineering",
+		"Band 2",
 	);
 
 	const role2 = new JobRole(
@@ -25,6 +27,8 @@ describe("JobRoleService", () => {
 		3,
 		"2027-11-30",
 		"Closed",
+		"Product",
+		"Band 3",
 	);
 
 	beforeEach(() => {
@@ -50,8 +54,8 @@ describe("JobRoleService", () => {
 				jobRoleId: 1,
 				roleName: "Backend Engineer",
 				location: "Cairo",
-				capabilityId: 1,
-				bandId: 2,
+				capabilityName: "Engineering",
+				bandName: "Band 2",
 				closingDate: "2027-12-31",
 				status: "Open",
 			},
@@ -59,8 +63,8 @@ describe("JobRoleService", () => {
 				jobRoleId: 2,
 				roleName: "Frontend Engineer",
 				location: "Dubai",
-				capabilityId: 2,
-				bandId: 3,
+				capabilityName: "Product",
+				bandName: "Band 3",
 				closingDate: "2027-11-30",
 				status: "Closed",
 			},
@@ -77,8 +81,8 @@ describe("JobRoleService", () => {
 			jobRoleId: 1,
 			roleName: "Backend Engineer",
 			location: "Cairo",
-			capabilityId: 1,
-			bandId: 2,
+			capabilityName: "Engineering",
+			bandName: "Band 2",
 			closingDate: "2027-12-31",
 			status: "Open",
 		});
@@ -111,6 +115,8 @@ describe("JobRoleService", () => {
 			1,
 			"2027-10-10",
 			"Open",
+			"Quality",
+			"Band 1",
 		);
 		vi.mocked(daoMock.create).mockResolvedValue(createdRole);
 
@@ -121,8 +127,8 @@ describe("JobRoleService", () => {
 			jobRoleId: 3,
 			roleName: "QA Engineer",
 			location: "Remote",
-			capabilityId: 2,
-			bandId: 1,
+			capabilityName: "Quality",
+			bandName: "Band 1",
 			closingDate: "2027-10-10",
 			status: "Open",
 		});
@@ -153,6 +159,8 @@ describe("JobRoleService", () => {
 			2,
 			"2027-12-31",
 			"Closed",
+			"Engineering",
+			"Band 2",
 		);
 		vi.mocked(daoMock.update).mockResolvedValue(updatedRole);
 
@@ -163,8 +171,8 @@ describe("JobRoleService", () => {
 			jobRoleId: 1,
 			roleName: "Backend Engineer",
 			location: "Cairo",
-			capabilityId: 1,
-			bandId: 2,
+			capabilityName: "Engineering",
+			bandName: "Band 2",
 			closingDate: "2027-12-31",
 			status: "Closed",
 		});

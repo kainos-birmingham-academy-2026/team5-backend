@@ -2,8 +2,8 @@ export interface JobRoleResponse {
 	jobRoleId: number;
 	roleName: string;
 	location: string;
-	capabilityId: number;
-	bandId: number;
+	capabilityName: string;
+	bandName: string;
 	closingDate: string;
 	status: string;
 }

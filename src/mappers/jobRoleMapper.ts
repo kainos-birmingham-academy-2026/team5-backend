@@ -7,8 +7,8 @@ export const JobRoleMapper = {
 			jobRoleId: jobRole.jobRoleId,
 			roleName: jobRole.roleName,
 			location: jobRole.location,
-			capabilityId: jobRole.capabilityId,
-			bandId: jobRole.bandId,
+			capabilityName: jobRole.capabilityName,
+			bandName: jobRole.bandName,
 			closingDate: jobRole.closingDate,
 			status: jobRole.status,
 		};

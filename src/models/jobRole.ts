@@ -7,6 +7,8 @@ export class JobRole {
 		public bandId: number,
 		public closingDate: string,
 		public status: string,
+		public capabilityName = "",
+		public bandName = "",
 	) {
 		if (!roleName || !location || !closingDate || !status) {
 			throw new Error(

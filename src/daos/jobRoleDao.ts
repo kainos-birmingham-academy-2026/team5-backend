@@ -1,9 +1,14 @@
-import type { JobRole as PrismaJobRole } from "@prisma/client";
+import type { Prisma } from "@prisma/client";
 import type { CreateJobRoleRequestDto } from "../dtos/jobRoleDto";
 import { JobRole } from "../models/jobRole";
 import prisma from "../prismaClient";
 
 export class JobRoleDao {
+	private readonly relationsInclude = {
+		capability: true,
+		band: true,
+	} as const;
+
 	private async validateRelations(
 		capabilityId: number,
 		bandId: number,
@@ -34,20 +39,26 @@ export class JobRoleDao {
 		return jobRoleData;
 	}
 
-	private toModel(jobRole: PrismaJobRole): JobRole {
+	private toModel(
+		jobRole: Prisma.JobRoleGetPayload<{ include: typeof this.relationsInclude }>,
+	): JobRole {
 		return new JobRole(
 			jobRole.jobRoleId,
 			jobRole.roleName,
 			jobRole.location,
 			jobRole.capabilityId,
 			jobRole.bandId,
-			jobRole.closingDate,
+			jobRole.closingDate.toISOString(),
 			jobRole.status,
+			jobRole.capability.capabilityName,
+			jobRole.band.bandName,
 		);
 	}
 
 	async findAll(): Promise<JobRole[]> {
-		const jobRoles = await prisma.jobRole.findMany();
+		const jobRoles = await prisma.jobRole.findMany({
+			include: this.relationsInclude,
+		});
 
 		return jobRoles.map((jobRole) => this.toModel(jobRole));
 	}
@@ -55,6 +66,7 @@ export class JobRoleDao {
 	async findById(id: number): Promise<JobRole | null> {
 		const jobRole = await prisma.jobRole.findUnique({
 			where: { jobRoleId: id },
+			include: this.relationsInclude,
 		});
 
 		return jobRole ? this.toModel(jobRole) : null;
@@ -65,6 +77,7 @@ export class JobRoleDao {
 
 		const jobRole = await prisma.jobRole.create({
 			data: this.toCreateData(jobRoleData),
+			include: this.relationsInclude,
 		});
 
 		return this.toModel(jobRole);
@@ -90,6 +103,7 @@ export class JobRoleDao {
 		const updatedJobRole = await prisma.jobRole.update({
 			where: { jobRoleId: id },
 			data: this.toUpdateData(jobRoleData),
+			include: this.relationsInclude,
 		});
 
 		return this.toModel(updatedJobRole);

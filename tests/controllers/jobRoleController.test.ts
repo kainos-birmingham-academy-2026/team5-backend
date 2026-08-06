@@ -44,8 +44,8 @@ describe("JobRoleController", () => {
 				jobRoleId: 1,
 				roleName: "Backend Engineer",
 				location: "Cairo",
-				capabilityId: 1,
-				bandId: 2,
+				capabilityName: "Engineering",
+				bandName: "Band 2",
 				closingDate: "2027-12-31",
 				status: "Open",
 			},
@@ -89,8 +89,8 @@ describe("JobRoleController", () => {
 			jobRoleId: 1,
 			roleName: "Backend Engineer",
 			location: "Cairo",
-			capabilityId: 1,
-			bandId: 2,
+			capabilityName: "Engineering",
+			bandName: "Band 2",
 			closingDate: "2027-12-31",
 			status: "Open",
 		};
@@ -123,15 +123,24 @@ describe("JobRoleController", () => {
 			closingDate: "2027-12-31",
 			status: "Open",
 		};
+		const createdResponse = {
+			jobRoleId: 1,
+			roleName: "Backend Engineer",
+			location: "Cairo",
+			capabilityName: "Engineering",
+			bandName: "Band 2",
+			closingDate: "2027-12-31",
+			status: "Open",
+		};
 		const req = createMockReq({ body: payload });
 		const res = createMockRes();
-		vi.mocked(serviceMock.create).mockResolvedValue(payload as never);
+		vi.mocked(serviceMock.create).mockResolvedValue(createdResponse as never);
 
 		await controller.createJobRole(req, res);
 
 		expect(serviceMock.create).toHaveBeenCalledWith(payload);
 		expect(res.status).toHaveBeenCalledWith(201);
-		expect(res.json).toHaveBeenCalledWith(payload);
+		expect(res.json).toHaveBeenCalledWith(createdResponse);
 	});
 
 	it("createJobRole returns 400 when service throws", async () => {
@@ -208,8 +217,8 @@ describe("JobRoleController", () => {
 			jobRoleId: 1,
 			roleName: "Backend Engineer",
 			location: "Cairo",
-			capabilityId: 1,
-			bandId: 2,
+			capabilityName: "Engineering",
+			bandName: "Band 2",
 			closingDate: "2027-12-31",
 			status: "Closed",
 		};
