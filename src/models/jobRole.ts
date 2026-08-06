@@ -5,13 +5,15 @@ export class JobRole {
 		public location: string,
 		public capabilityId: number,
 		public bandId: number,
-		public closingDate: Date,
+		public closingDate: string,
 		public status: string,
 	) {
-		if (!roleName || !location || !status) {
-			throw new Error("Role name, location, and status cannot be empty");
+		if (!roleName || !location || !closingDate || !status) {
+			throw new Error(
+				"Role name, location, closing date, and status cannot be empty",
+			);
 		}
-		if (closingDate <= new Date()) {
+		if (new Date(`${closingDate}T00:00:00.000Z`) <= new Date()) {
 			throw new Error("Closing date must be in the future");
 		}
 		if (bandId <= 0 || capabilityId <= 0 || jobRoleId <= 0) {

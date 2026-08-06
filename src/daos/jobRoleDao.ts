@@ -26,26 +26,12 @@ export class JobRoleDao {
 		}
 	}
 
-	private toPrismaClosingDate(closingDate: string): Date {
-		return new Date(`${closingDate}T00:00:00.000Z`);
-	}
-
 	private toCreateData(jobRoleData: CreateJobRoleRequestDto) {
-		return {
-			...jobRoleData,
-			closingDate: this.toPrismaClosingDate(jobRoleData.closingDate),
-		};
+		return jobRoleData;
 	}
 
 	private toUpdateData(jobRoleData: Partial<CreateJobRoleRequestDto>) {
-		return {
-			...jobRoleData,
-			...(jobRoleData.closingDate
-				? {
-						closingDate: this.toPrismaClosingDate(jobRoleData.closingDate),
-					}
-				: {}),
-		};
+		return jobRoleData;
 	}
 
 	private toModel(jobRole: PrismaJobRole): JobRole {

@@ -13,7 +13,7 @@ describe("JobRoleService", () => {
 		"Cairo",
 		1,
 		2,
-		new Date("2027-12-31T00:00:00.000Z"),
+		"2027-12-31",
 		"Open",
 	);
 
@@ -23,7 +23,7 @@ describe("JobRoleService", () => {
 		"Dubai",
 		2,
 		3,
-		new Date("2027-11-30T00:00:00.000Z"),
+		"2027-11-30",
 		"Closed",
 	);
 
@@ -109,7 +109,7 @@ describe("JobRoleService", () => {
 			"Remote",
 			2,
 			1,
-			new Date("2027-10-10T00:00:00.000Z"),
+			"2027-10-10",
 			"Open",
 		);
 		vi.mocked(daoMock.create).mockResolvedValue(createdRole);
@@ -151,7 +151,7 @@ describe("JobRoleService", () => {
 			"Cairo",
 			1,
 			2,
-			new Date("2027-12-31T00:00:00.000Z"),
+			"2027-12-31",
 			"Closed",
 		);
 		vi.mocked(daoMock.update).mockResolvedValue(updatedRole);

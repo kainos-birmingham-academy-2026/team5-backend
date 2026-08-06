@@ -9,7 +9,7 @@ export const JobRoleMapper = {
 			location: jobRole.location,
 			capabilityId: jobRole.capabilityId,
 			bandId: jobRole.bandId,
-			closingDate: jobRole.closingDate.toISOString().slice(0, 10),
+			closingDate: jobRole.closingDate,
 			status: jobRole.status,
 		};
 	},
