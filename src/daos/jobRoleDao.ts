@@ -3,11 +3,17 @@ import type { CreateJobRoleRequestDto } from "../dtos/jobRoleDto";
 import { JobRole } from "../models/jobRole";
 import prisma from "../prismaClient";
 
+const jobRoleRelationsInclude = {
+	capability: true,
+	band: true,
+} as const;
+
+type JobRoleWithRelations = Prisma.JobRoleGetPayload<{
+	include: typeof jobRoleRelationsInclude;
+}>;
+
 export class JobRoleDao {
-	private readonly relationsInclude = {
-		capability: true,
-		band: true,
-	} as const;
+	private readonly relationsInclude = jobRoleRelationsInclude;
 
 	private async validateRelations(
 		capabilityId: number,
@@ -39,16 +45,14 @@ export class JobRoleDao {
 		return jobRoleData;
 	}
 
-	private toModel(
-		jobRole: Prisma.JobRoleGetPayload<{ include: typeof this.relationsInclude }>,
-	): JobRole {
+	private toModel(jobRole: JobRoleWithRelations): JobRole {
 		return new JobRole(
 			jobRole.jobRoleId,
 			jobRole.roleName,
 			jobRole.location,
 			jobRole.capabilityId,
 			jobRole.bandId,
-			jobRole.closingDate.toISOString(),
+			jobRole.closingDate.toString(),
 			jobRole.status,
 			jobRole.capability.capabilityName,
 			jobRole.band.bandName,
