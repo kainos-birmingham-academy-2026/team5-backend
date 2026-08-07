@@ -1,8 +1,34 @@
 import { PrismaClient } from "@prisma/client";
+import bcrypt from "bcrypt";
 
 const prisma = new PrismaClient();
 
 async function main() {
+	// Seed roles
+	const roles = ["applicant", "recruiter", "admin"];
+
+	for (const roleName of roles) {
+		await prisma.role.upsert({
+			where: { name: roleName },
+			update: {},
+			create: { name: roleName },
+		});
+	}
+
+	// Seed John Doe user
+	const hashedPassword = await bcrypt.hash("password123", 10);
+	await prisma.user.upsert({
+		where: { email: "john@example.com" },
+		update: {},
+		create: {
+			firstName: "John",
+			lastName: "Doe",
+			email: "john@example.com",
+			password: hashedPassword,
+			roleId: 1,
+		},
+	});
+
 	// Seed your database here
 	await prisma.jobRole.createMany({
 		data: [
