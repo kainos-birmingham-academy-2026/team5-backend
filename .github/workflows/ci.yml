@@ -2,13 +2,18 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [main, master]
   pull_request:
-    branches: [main]
+    branches: [main, master]
+
+permissions:
+  contents: read
 
 jobs:
-  test:
+  build-lint-test:
+    name: Build, lint, and test
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     env:
       DATABASE_URL: postgresql://postgres:postgres@localhost:5432/team5_ci
     steps:
@@ -16,7 +21,9 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "20"
+          cache: npm
       - run: npm ci
       - run: npx prisma generate
-      - run: npm run lint
+      - run: npm run build
+      - run: npm run ci:check
       - run: npm test
