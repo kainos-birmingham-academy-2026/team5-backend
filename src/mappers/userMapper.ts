@@ -1,4 +1,4 @@
-import { User as PrismaUser } from "@prisma/client";
+import type { User as PrismaUser } from "@prisma/client";
 import { User } from "../models/user";
 import type { UserResponse } from "../models/userResponse";
 
@@ -28,7 +28,9 @@ export class UserMapper {
 		};
 	}
 
-	static toPersistence(user: User): Omit<PrismaUser, "createdAt" | "updatedAt"> {
+	static toPersistence(
+		user: User,
+	): Omit<PrismaUser, "createdAt" | "updatedAt"> {
 		return {
 			id: user.id,
 			firstName: user.firstName,

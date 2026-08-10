@@ -1,8 +1,8 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { userDao } from "../daos/userDao";
-import { UserMapper } from "../mappers/userMapper";
 import type { LoginResponseDto, RegisterRequestDto } from "../dtos/userDto";
+import { UserMapper } from "../mappers/userMapper";
 
 const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key-change-this";
 const SALT_ROUNDS = 10;
@@ -49,10 +49,7 @@ export class AuthenticationService {
 		};
 	}
 
-	async login(
-		email: string,
-		password: string,
-	): Promise<LoginResponseDto> {
+	async login(email: string, password: string): Promise<LoginResponseDto> {
 		// Find user by email
 		const prismaUser = await userDao.findByEmail(email);
 		if (!prismaUser) {
@@ -75,7 +72,7 @@ export class AuthenticationService {
 		};
 	}
 
-	private generateToken(userId: string, email: string, roleId: string): string {
+	private generateToken(userId: string, email: string, roleId: number): string {
 		return jwt.sign(
 			{
 				userId,
@@ -89,10 +86,14 @@ export class AuthenticationService {
 		);
 	}
 
-	verifyToken(token: string): { userId: string; email: string; roleId: string } {
+	verifyToken(token: string): {
+		userId: string;
+		email: string;
+		roleId: number;
+	} {
 		try {
 			const decoded = jwt.verify(token, JWT_SECRET);
-			return decoded as { userId: string; email: string; roleId: string };
+			return decoded as { userId: string; email: string; roleId: number };
 		} catch {
 			throw new Error("Invalid or expired token");
 		}

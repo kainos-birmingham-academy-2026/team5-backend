@@ -1,11 +1,8 @@
 import type { Request, Response } from "express";
-import {
-	LoginRequestSchema,
-	RegisterRequestSchema,
-} from "../dtos/userDto";
-import { authenticationService } from "../services/authenticationService";
 import { userDao } from "../daos/userDao";
+import { LoginRequestSchema, RegisterRequestSchema } from "../dtos/userDto";
 import { UserMapper } from "../mappers/userMapper";
+import { authenticationService } from "../services/authenticationService";
 
 export class UserController {
 	async login(req: Request, res: Response): Promise<void> {
@@ -38,14 +35,17 @@ export class UserController {
 
 			res.status(201).json(result);
 		} catch (error) {
-			const message = error instanceof Error ? error.message : "Registration failed";
+			const message =
+				error instanceof Error ? error.message : "Registration failed";
 			res.status(400).json({ error: message });
 		}
 	}
 
 	async getUser(req: Request, res: Response): Promise<void> {
 		try {
-			const { id } = req.params;
+			const id = Array.isArray(req.params.id)
+				? req.params.id[0]
+				: req.params.id;
 
 			if (!id) {
 				res.status(400).json({ error: "User ID is required" });
@@ -62,7 +62,8 @@ export class UserController {
 			const user = UserMapper.toDomain(prismaUser);
 			res.status(200).json(UserMapper.toResponse(user));
 		} catch (error) {
-			const message = error instanceof Error ? error.message : "Failed to retrieve user";
+			const message =
+				error instanceof Error ? error.message : "Failed to retrieve user";
 			res.status(500).json({ error: message });
 		}
 	}

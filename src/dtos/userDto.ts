@@ -1,5 +1,5 @@
 import { z } from "zod";
-import type { UserResponse, LoginResponse } from "../models/userResponse";
+import type { LoginResponse, UserResponse } from "../models/userResponse";
 
 export type UserResponseDto = UserResponse;
 export type LoginResponseDto = LoginResponse;

@@ -20,7 +20,7 @@ export class UserDao {
 		lastName: string;
 		email: string;
 		password: string;
-		roleId: string;
+		roleId: number;
 	}) {
 		return prisma.user.create({
 			data,

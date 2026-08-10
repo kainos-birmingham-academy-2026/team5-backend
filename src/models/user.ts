@@ -5,11 +5,11 @@ export class User {
 		public lastName: string,
 		public email: string,
 		public password: string,
-		public roleId: string,
+		public roleId: number,
 		public createdAt: Date,
 		public updatedAt: Date,
 	) {
-		if (!firstName || !lastName || !email || !password || !roleId) {
+		if (!firstName || !lastName || !email || !password || roleId === undefined) {
 			throw new Error(
 				"First name, last name, email, password, and role are required",
 			);

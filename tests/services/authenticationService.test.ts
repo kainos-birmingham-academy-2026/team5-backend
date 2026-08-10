@@ -1,7 +1,7 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
-import { AuthenticationService } from "../../src/services/authenticationService";
-import { userDao } from "../../src/daos/userDao";
 import bcrypt from "bcrypt";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { userDao } from "../../src/daos/userDao";
+import { AuthenticationService } from "../../src/services/authenticationService";
 
 vi.mock("../../src/daos/userDao");
 vi.mock("bcrypt");
@@ -30,10 +30,7 @@ describe("AuthenticationService", () => {
 			vi.mocked(userDao.findByEmail).mockResolvedValue(mockUser);
 			vi.mocked(bcrypt.compare).mockResolvedValue(true as never);
 
-			const result = await service.login(
-				"john@example.com",
-				"password123",
-			);
+			const result = await service.login("john@example.com", "password123");
 
 			expect(result.user).toEqual({
 				id: "user-1",
