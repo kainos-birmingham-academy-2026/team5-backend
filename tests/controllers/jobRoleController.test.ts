@@ -29,6 +29,7 @@ describe("JobRoleController", () => {
 		serviceMock = {
 			findAll: vi.fn(),
 			findById: vi.fn(),
+			findDetailedById: vi.fn(),
 			create: vi.fn(),
 			update: vi.fn(),
 			delete: vi.fn(),
@@ -120,7 +121,7 @@ describe("JobRoleController", () => {
 
 		await controller.getJobRoleById(req, res);
 
-		expect(serviceMock.findById).not.toHaveBeenCalled();
+		expect(serviceMock.findDetailedById).not.toHaveBeenCalled();
 		expect(res.status).toHaveBeenCalledWith(400);
 		expect(res.json).toHaveBeenCalledWith({ error: "Invalid ID provided" });
 	});
@@ -128,11 +129,11 @@ describe("JobRoleController", () => {
 	it("getJobRoleById returns 404 when not found", async () => {
 		const req = createMockReq({ params: { id: "1" } as Request["params"] });
 		const res = createMockRes();
-		vi.mocked(serviceMock.findById).mockResolvedValue(null as never);
+		vi.mocked(serviceMock.findDetailedById).mockResolvedValue(null as never);
 
 		await controller.getJobRoleById(req, res);
 
-		expect(serviceMock.findById).toHaveBeenCalledWith(1);
+		expect(serviceMock.findDetailedById).toHaveBeenCalledWith(1);
 		expect(res.status).toHaveBeenCalledWith(404);
 		expect(res.json).toHaveBeenCalledWith({ error: "Job role not found" });
 	});
@@ -149,7 +150,7 @@ describe("JobRoleController", () => {
 			closingDate: "2027-12-31",
 			status: "Open",
 		};
-		vi.mocked(serviceMock.findById).mockResolvedValue(role as never);
+		vi.mocked(serviceMock.findDetailedById).mockResolvedValue(role as never);
 
 		await controller.getJobRoleById(req, res);
 

@@ -47,9 +47,16 @@ model JobRole {
   bandId       Int
   closingDate  String
   status       String
+  description  String?
+  responsibilities String?
+  sharepointUrl String?
+  statusId      Int?
+  numberOfOpenPositions Int?
+  
 
   capability Capability @relation(fields: [capabilityId], references: [capabilityId])
   band       Band       @relation(fields: [bandId], references: [nameId])
+  statusRef  Status?    @relation(fields: [statusId], references: [statusId])
 
   @@map("job-roles")
 }
@@ -70,4 +77,13 @@ model Band {
   jobRoles JobRole[]
 
   @@map("band")
+}
+
+model Status {
+  statusId   Int    @id @default(autoincrement())
+  statusName String
+
+  jobRoles JobRole[]
+
+  @@map("status")
 }

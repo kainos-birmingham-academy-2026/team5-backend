@@ -124,6 +124,34 @@ describe("JobRoleService", () => {
 		expect(result).toBeNull();
 	});
 
+	it("findDetailedById returns detailed mapped dto when found", async () => {
+		vi.mocked(daoMock.findById).mockResolvedValue(role1);
+
+		const result = await service.findDetailedById(1);
+
+		expect(daoMock.findById).toHaveBeenCalledWith(1);
+		expect(result).toEqual({
+			jobRoleId: 1,
+			roleName: "Backend Engineer",
+			location: "Cairo",
+			capabilityName: "Engineering",
+			bandName: "Band 2",
+			closingDate: "2027-12-31",
+			status: "Open",
+			capabilityId: 1,
+			bandId: 2,
+		});
+	});
+
+	it("findDetailedById returns null when dao returns null", async () => {
+		vi.mocked(daoMock.findById).mockResolvedValue(null);
+
+		const result = await service.findDetailedById(999);
+
+		expect(daoMock.findById).toHaveBeenCalledWith(999);
+		expect(result).toBeNull();
+	});
+
 	it("create returns mapped response dto", async () => {
 		const payload = {
 			jobRoleId: 3,

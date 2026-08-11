@@ -4,6 +4,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const serviceMock = vi.hoisted(() => ({
 	findAll: vi.fn(),
 	findById: vi.fn(),
+	findDetailedById: vi.fn(),
 	create: vi.fn(),
 	update: vi.fn(),
 	delete: vi.fn(),
@@ -69,7 +70,7 @@ describe("Job Role Routes", () => {
 			closingDate: "2027-12-31",
 			status: "Open",
 		};
-		serviceMock.findById.mockResolvedValue(role);
+		serviceMock.findDetailedById.mockResolvedValue(role);
 
 		const response = await request(app).get("/job-roles/1");
 
@@ -82,11 +83,11 @@ describe("Job Role Routes", () => {
 
 		expect(response.status).toBe(400);
 		expect(response.body).toEqual({ error: "Invalid ID provided" });
-		expect(serviceMock.findById).not.toHaveBeenCalled();
+		expect(serviceMock.findDetailedById).not.toHaveBeenCalled();
 	});
 
 	it("GET /job-roles/:id returns 404 when missing", async () => {
-		serviceMock.findById.mockResolvedValue(null);
+		serviceMock.findDetailedById.mockResolvedValue(null);
 
 		const response = await request(app).get("/job-roles/999");
 

@@ -1,7 +1,11 @@
 import { z } from "zod";
-import type { JobRoleResponse } from "../models/jobRoleResponse";
+import type {
+	JobRoleDetailedResponse,
+	JobRoleResponse,
+} from "../models/jobRoleResponse";
 
 export type JobRoleResponseDto = JobRoleResponse;
+export type JobRoleDetailedResponseDto = JobRoleDetailedResponse;
 
 export const CreateJobRoleSchema = z.object({
 	jobRoleId: z.number().int().positive(),
