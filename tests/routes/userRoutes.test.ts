@@ -118,9 +118,7 @@ describe("User Routes", () => {
 		});
 
 		it("should return 404 for non-existent user", async () => {
-			const response = await request(app).get(
-				"/auth/user/non-existent-id",
-			);
+			const response = await request(app).get("/auth/user/non-existent-id");
 
 			expect([404, 500]).toContain(response.status);
 		});

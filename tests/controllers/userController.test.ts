@@ -1,8 +1,8 @@
 import type { Request, Response } from "express";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { UserController } from "../../src/controllers/userController";
-import { authenticationService } from "../../src/services/authenticationService";
 import { userDao } from "../../src/daos/userDao";
+import { authenticationService } from "../../src/services/authenticationService";
 
 vi.mock("../../src/services/authenticationService");
 vi.mock("../../src/daos/userDao");
@@ -103,9 +103,7 @@ describe("UserController", () => {
 		});
 
 		it("should return 401 on authentication error without message", async () => {
-			vi.mocked(authenticationService.login).mockRejectedValue(
-				new Error(),
-			);
+			vi.mocked(authenticationService.login).mockRejectedValue(new Error());
 
 			const req = createMockReq({
 				body: {
@@ -122,9 +120,7 @@ describe("UserController", () => {
 		});
 
 		it("should return 401 on non-Error authentication failure", async () => {
-			vi.mocked(authenticationService.login).mockRejectedValue(
-				"Some error",
-			);
+			vi.mocked(authenticationService.login).mockRejectedValue("Some error");
 
 			const req = createMockReq({
 				body: {
@@ -227,9 +223,7 @@ describe("UserController", () => {
 		});
 
 		it("should return 400 on registration error without message", async () => {
-			vi.mocked(authenticationService.register).mockRejectedValue(
-				new Error(),
-			);
+			vi.mocked(authenticationService.register).mockRejectedValue(new Error());
 
 			const req = createMockReq({
 				body: {
@@ -249,9 +243,7 @@ describe("UserController", () => {
 		});
 
 		it("should return 400 on non-Error registration failure", async () => {
-			vi.mocked(authenticationService.register).mockRejectedValue(
-				"Some error",
-			);
+			vi.mocked(authenticationService.register).mockRejectedValue("Some error");
 
 			const req = createMockReq({
 				body: {

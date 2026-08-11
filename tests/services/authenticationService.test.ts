@@ -103,11 +103,7 @@ describe("AuthenticationService", () => {
 
 	describe("verifyToken", () => {
 		it("should verify and decode valid token", () => {
-			const token = service["generateToken"](
-				"user-1",
-				"john@example.com",
-				1,
-			);
+			const token = service["generateToken"]("user-1", "john@example.com", 1);
 			const decoded = service.verifyToken(token);
 
 			expect(decoded.userId).toBe("user-1");
