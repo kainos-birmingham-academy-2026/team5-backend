@@ -59,12 +59,25 @@ export class JobRoleDao {
 		);
 	}
 
-	async findAll(): Promise<JobRole[]> {
-		const jobRoles = await prisma.jobRole.findMany({
-			include: this.relationsInclude,
-		});
+	async findAll(
+		page: number,
+		pageSize: number,
+	): Promise<{ jobRoles: JobRole[]; totalItems: number }> {
+		const skip = (page - 1) * pageSize;
 
-		return jobRoles.map((jobRole) => this.toModel(jobRole));
+		const [jobRoles, totalItems] = await Promise.all([
+			prisma.jobRole.findMany({
+				include: this.relationsInclude,
+				skip,
+				take: pageSize,
+			}),
+			prisma.jobRole.count(),
+		]);
+
+		return {
+			jobRoles: jobRoles.map((jobRole) => this.toModel(jobRole)),
+			totalItems,
+		};
 	}
 
 	async findById(id: number): Promise<JobRole | null> {

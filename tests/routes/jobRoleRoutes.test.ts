@@ -22,25 +22,41 @@ describe("Job Role Routes", () => {
 		vi.resetAllMocks();
 	});
 
-	it("GET /job-roles returns 200 and list", async () => {
-		const roles = [
-			{
-				jobRoleId: 1,
-				roleName: "Backend Engineer",
-				location: "Cairo",
-				capabilityName: "Engineering",
-				bandName: "Band 2",
-				closingDate: "2027-12-31",
-				status: "Open",
-			},
-		];
-		serviceMock.findAll.mockResolvedValue(roles);
+	it("GET /job-roles returns 200 and paginated results", async () => {
+		const result = {
+			items: [
+				{
+					jobRoleId: 1,
+					roleName: "Backend Engineer",
+					location: "Cairo",
+					capabilityName: "Engineering",
+					bandName: "Band 2",
+					closingDate: "2027-12-31",
+					status: "Open",
+				},
+			],
+			page: 1,
+			pageSize: 10,
+			totalItems: 1,
+			totalPages: 1,
+		};
+		serviceMock.findAll.mockResolvedValue(result);
 
 		const response = await request(app).get("/job-roles");
 
 		expect(response.status).toBe(200);
-		expect(response.body).toEqual(roles);
-		expect(serviceMock.findAll).toHaveBeenCalledOnce();
+		expect(response.body).toEqual(result);
+		expect(serviceMock.findAll).toHaveBeenCalledWith(1, 10);
+	});
+
+	it("GET /job-roles rejects pageSize above 100", async () => {
+		const response = await request(app).get("/job-roles?pageSize=101");
+
+		expect(response.status).toBe(400);
+		expect(response.body).toEqual({
+			error: "Invalid pagination parameters",
+		});
+		expect(serviceMock.findAll).not.toHaveBeenCalled();
 	});
 
 	it("GET /job-roles/:id returns 200 with role", async () => {

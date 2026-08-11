@@ -43,32 +43,59 @@ describe("JobRoleService", () => {
 		service = new JobRoleService(daoMock);
 	});
 
-	it("findAll returns mapped response dto array", async () => {
-		vi.mocked(daoMock.findAll).mockResolvedValue([role1, role2]);
+	it("findAll returns mapped records and pagination metadata", async () => {
+		vi.mocked(daoMock.findAll).mockResolvedValue({
+			jobRoles: [role1, role2],
+			totalItems: 12,
+		});
 
-		const result = await service.findAll();
+		const result = await service.findAll(2, 5);
 
-		expect(daoMock.findAll).toHaveBeenCalledOnce();
-		expect(result).toEqual([
-			{
-				jobRoleId: 1,
-				roleName: "Backend Engineer",
-				location: "Cairo",
-				capabilityName: "Engineering",
-				bandName: "Band 2",
-				closingDate: "2027-12-31",
-				status: "Open",
-			},
-			{
-				jobRoleId: 2,
-				roleName: "Frontend Engineer",
-				location: "Dubai",
-				capabilityName: "Product",
-				bandName: "Band 3",
-				closingDate: "2027-11-30",
-				status: "Closed",
-			},
-		]);
+		expect(daoMock.findAll).toHaveBeenCalledWith(2, 5);
+		expect(result).toEqual({
+			items: [
+				{
+					jobRoleId: 1,
+					roleName: "Backend Engineer",
+					location: "Cairo",
+					capabilityName: "Engineering",
+					bandName: "Band 2",
+					closingDate: "2027-12-31",
+					status: "Open",
+				},
+				{
+					jobRoleId: 2,
+					roleName: "Frontend Engineer",
+					location: "Dubai",
+					capabilityName: "Product",
+					bandName: "Band 3",
+					closingDate: "2027-11-30",
+					status: "Closed",
+				},
+			],
+			page: 2,
+			pageSize: 5,
+			totalItems: 12,
+			totalPages: 3,
+		});
+	});
+
+	it("findAll returns empty items with zero totals", async () => {
+		vi.mocked(daoMock.findAll).mockResolvedValue({
+			jobRoles: [],
+			totalItems: 0,
+		});
+
+		const result = await service.findAll(1, 10);
+
+		expect(daoMock.findAll).toHaveBeenCalledWith(1, 10);
+		expect(result).toEqual({
+			items: [],
+			page: 1,
+			pageSize: 10,
+			totalItems: 0,
+			totalPages: 0,
+		});
 	});
 
 	it("findById returns mapped dto when found", async () => {
