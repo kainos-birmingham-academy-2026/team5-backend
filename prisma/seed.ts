@@ -51,6 +51,8 @@ async function main() {
 				status: "Closed",
 			},
 		],
+	});
+
 	// Seed roles
 	const roles = ["applicant", "recruiter", "admin"];
 
