@@ -1,7 +1,7 @@
+import * as argon2 from "argon2";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { userDao } from "../../src/daos/userDao";
 import { AuthenticationService } from "../../src/services/authenticationService";
-import * as argon2 from "argon2";
 
 vi.mock("../../src/daos/userDao");
 vi.mock("argon2");

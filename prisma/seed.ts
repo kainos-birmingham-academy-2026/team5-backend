@@ -29,7 +29,9 @@ async function main() {
 		},
 	});
 
-	console.log("✅ Seed completed: Roles and user data seeded with argon2 hashed passwords");
+	console.log(
+		"✅ Seed completed: Roles and user data seeded with argon2 hashed passwords",
+	);
 }
 
 main().finally(() => prisma.$disconnect());
