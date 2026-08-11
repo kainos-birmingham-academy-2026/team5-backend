@@ -22,7 +22,7 @@ describe("AuthenticationService", () => {
 				lastName: "Doe",
 				email: "john@example.com",
 				password: "hashed-password",
-				roleId: "role-1",
+				roleId: 1,
 				createdAt: new Date(),
 				updatedAt: new Date(),
 			};
@@ -37,7 +37,7 @@ describe("AuthenticationService", () => {
 				firstName: "John",
 				lastName: "Doe",
 				email: "john@example.com",
-				roleId: "role-1",
+				roleId: 1,
 				createdAt: mockUser.createdAt,
 				updatedAt: mockUser.updatedAt,
 			});
@@ -60,7 +60,7 @@ describe("AuthenticationService", () => {
 				lastName: "Doe",
 				email: "john@example.com",
 				password: "hashed-password",
-				roleId: "role-1",
+				roleId: 1,
 				createdAt: new Date(),
 				updatedAt: new Date(),
 			};
@@ -82,7 +82,7 @@ describe("AuthenticationService", () => {
 				lastName: "Doe",
 				email: "john@example.com",
 				password: "hashed-password",
-				roleId: "role-1",
+				roleId: 1,
 				createdAt: new Date(),
 				updatedAt: new Date(),
 			};
@@ -106,13 +106,13 @@ describe("AuthenticationService", () => {
 			const token = service["generateToken"](
 				"user-1",
 				"john@example.com",
-				"role-1",
+				1,
 			);
 			const decoded = service.verifyToken(token);
 
 			expect(decoded.userId).toBe("user-1");
 			expect(decoded.email).toBe("john@example.com");
-			expect(decoded.roleId).toBe("role-1");
+			expect(decoded.roleId).toBe(1);
 		});
 
 		it("should throw error for invalid token", () => {
