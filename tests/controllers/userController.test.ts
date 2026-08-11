@@ -165,7 +165,7 @@ describe("UserController", () => {
 					firstName: "Jane",
 					lastName: "Doe",
 					email: "jane@example.com",
-					password: "password123",
+					password: "SecurePass123",
 					role: "applicant",
 				},
 			});
@@ -206,7 +206,7 @@ describe("UserController", () => {
 					firstName: "Jane",
 					lastName: "Doe",
 					email: "jane@example.com",
-					password: "password123",
+					password: "SecurePass123",
 					role: "applicant",
 				},
 			});
@@ -230,7 +230,7 @@ describe("UserController", () => {
 					firstName: "Jane",
 					lastName: "Doe",
 					email: "jane@example.com",
-					password: "password123",
+					password: "SecurePass123",
 					role: "applicant",
 				},
 			});
@@ -250,7 +250,7 @@ describe("UserController", () => {
 					firstName: "Jane",
 					lastName: "Doe",
 					email: "jane@example.com",
-					password: "password123",
+					password: "SecurePass123",
 					role: "applicant",
 				},
 			});

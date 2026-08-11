@@ -7,7 +7,7 @@ describe("User Routes", () => {
 		it("should accept valid login request", async () => {
 			const response = await request(app).post("/auth/login").send({
 				email: "test@example.com",
-				password: "password123",
+				password: "SecurePass123",
 			});
 
 			// Should return either 200 (success) or 401 (invalid credentials), but not 404
@@ -17,7 +17,7 @@ describe("User Routes", () => {
 		it("should return 400 for invalid email", async () => {
 			const response = await request(app).post("/auth/login").send({
 				email: "invalid-email",
-				password: "password123",
+				password: "SecurePass123",
 			});
 
 			expect(response.status).toBe(400);
@@ -34,7 +34,7 @@ describe("User Routes", () => {
 		it("should return 401 for non-existent user", async () => {
 			const response = await request(app).post("/auth/login").send({
 				email: "nonexistent@example.com",
-				password: "password123",
+				password: "SecurePass123",
 			});
 
 			expect(response.status).toBe(401);
@@ -50,7 +50,7 @@ describe("User Routes", () => {
 					firstName: "John",
 					lastName: "Doe",
 					email: `test+${Date.now()}@example.com`,
-					password: "password123",
+					password: "SecurePass123",
 					role: "applicant",
 				});
 
@@ -63,7 +63,7 @@ describe("User Routes", () => {
 				firstName: "John",
 				lastName: "Doe",
 				email: "invalid-email",
-				password: "password123",
+				password: "SecurePass123",
 				role: "applicant",
 			});
 
@@ -75,7 +75,31 @@ describe("User Routes", () => {
 				firstName: "John",
 				lastName: "Doe",
 				email: "test@example.com",
-				password: "short",
+				password: "Short1A",
+				role: "applicant",
+			});
+
+			expect(response.status).toBe(400);
+		});
+
+		it("should return 400 for password without capital letter", async () => {
+			const response = await request(app).post("/auth/register").send({
+				firstName: "John",
+				lastName: "Doe",
+				email: "test@example.com",
+				password: "lowercase1234",
+				role: "applicant",
+			});
+
+			expect(response.status).toBe(400);
+		});
+
+		it("should return 400 for password without number", async () => {
+			const response = await request(app).post("/auth/register").send({
+				firstName: "John",
+				lastName: "Doe",
+				email: "test@example.com",
+				password: "NoNumberHere",
 				role: "applicant",
 			});
 
@@ -85,7 +109,7 @@ describe("User Routes", () => {
 		it("should return 400 for missing required fields", async () => {
 			const response = await request(app).post("/auth/register").send({
 				email: "test@example.com",
-				password: "password123",
+				password: "SecurePass123",
 			});
 
 			expect(response.status).toBe(400);
@@ -96,7 +120,7 @@ describe("User Routes", () => {
 				firstName: "John",
 				lastName: "Doe",
 				email: "test@example.com",
-				password: "password123",
+				password: "SecurePass123",
 				role: "invalid-role",
 			});
 

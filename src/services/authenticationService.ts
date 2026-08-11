@@ -1,11 +1,10 @@
-import bcrypt from "bcrypt";
+import { hash, verify } from "argon2";
 import jwt from "jsonwebtoken";
 import { userDao } from "../daos/userDao";
 import type { LoginResponseDto, RegisterRequestDto } from "../dtos/userDto";
 import { UserMapper } from "../mappers/userMapper";
 
 const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key-change-this";
-const SALT_ROUNDS = 10;
 
 export class AuthenticationService {
 	async register(data: RegisterRequestDto): Promise<LoginResponseDto> {
@@ -15,8 +14,8 @@ export class AuthenticationService {
 			throw new Error("User with this email already exists");
 		}
 
-		// Hash password
-		const hashedPassword = await bcrypt.hash(data.password, SALT_ROUNDS);
+		// Hash password with argon2
+		const hashedPassword = await hash(data.password);
 
 		// Get role ID from role name (assuming roles are already seeded)
 		const { PrismaClient } = await import("@prisma/client");
@@ -56,8 +55,8 @@ export class AuthenticationService {
 			throw new Error("Invalid email or password");
 		}
 
-		// Compare passwords
-		const isPasswordValid = await bcrypt.compare(password, prismaUser.password);
+		// Verify password with argon2
+		const isPasswordValid = await verify(prismaUser.password, password);
 		if (!isPasswordValid) {
 			throw new Error("Invalid email or password");
 		}

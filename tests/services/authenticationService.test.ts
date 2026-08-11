@@ -1,10 +1,10 @@
-import bcrypt from "bcrypt";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { userDao } from "../../src/daos/userDao";
 import { AuthenticationService } from "../../src/services/authenticationService";
+import * as argon2 from "argon2";
 
 vi.mock("../../src/daos/userDao");
-vi.mock("bcrypt");
+vi.mock("argon2");
 
 describe("AuthenticationService", () => {
 	let service: AuthenticationService;
@@ -28,7 +28,7 @@ describe("AuthenticationService", () => {
 			};
 
 			vi.mocked(userDao.findByEmail).mockResolvedValue(mockUser);
-			vi.mocked(bcrypt.compare).mockResolvedValue(true as never);
+			vi.mocked(argon2.verify).mockResolvedValue(true);
 
 			const result = await service.login("john@example.com", "password123");
 
@@ -66,7 +66,7 @@ describe("AuthenticationService", () => {
 			};
 
 			vi.mocked(userDao.findByEmail).mockResolvedValue(mockUser);
-			vi.mocked(bcrypt.compare).mockResolvedValue(false as never);
+			vi.mocked(argon2.verify).mockResolvedValue(false);
 
 			await expect(
 				service.login("john@example.com", "wrongpassword"),
