@@ -9,6 +9,11 @@ export class JobRole {
 		public status: string,
 		public capabilityName = "",
 		public bandName = "",
+		public description: string | null = null,
+		public responsibilities: string | null = null,
+		public sharepointUrl: string | null = null,
+		public statusId: number | null = null,
+		public numberOfOpenPositions: number | null = null,
 	) {
 		if (!roleName || !location || !closingDate || !status) {
 			throw new Error(

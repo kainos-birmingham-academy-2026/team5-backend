@@ -6,6 +6,7 @@ import prisma from "../prismaClient";
 const jobRoleRelationsInclude = {
 	capability: true,
 	band: true,
+	statusRef: true,
 } as const;
 
 type JobRoleWithRelations = Prisma.JobRoleGetPayload<{
@@ -56,6 +57,11 @@ export class JobRoleDao {
 			jobRole.status,
 			jobRole.capability.capabilityName,
 			jobRole.band.bandName,
+			jobRole.description,
+			jobRole.responsibilities,
+			jobRole.sharepointUrl,
+			jobRole.statusId,
+			jobRole.numberOfOpenPositions,
 		);
 	}
 
