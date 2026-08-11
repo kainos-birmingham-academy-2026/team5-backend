@@ -17,24 +17,32 @@ Backend API for managing Job Roles using Node.js, TypeScript, Express, and Prism
 ```text
 .
 ├── src/
-│   ├── app.ts                      # Express app setup + route registration
-│   ├── index.ts                    # Server bootstrap (port 3000)
-│   ├── prismaClient.ts             # Prisma client instance
+│   ├── app.ts                           # Express app setup + route registration
+│   ├── index.ts                         # Server bootstrap (port 3000)
+│   ├── prismaClient.ts                  # Prisma client instance
 │   ├── controllers/
-│   │   └── jobRoleController.ts    # HTTP/controller layer
+│   │   ├── jobRoleController.ts         # Job role HTTP/controller layer
+│   │   └── userController.ts            # User/auth HTTP/controller layer
 │   ├── services/
-│   │   └── jobRoleService.ts       # Business/service layer
+│   │   ├── jobRoleService.ts            # Job role business logic
+│   │   └── authenticationService.ts     # Authentication business logic
 │   ├── daos/
-│   │   └── jobRoleDao.ts           # Data access with Prisma
+│   │   ├── jobRoleDao.ts                # Job role data access with Prisma
+│   │   └── userDao.ts                   # User data access with Prisma
 │   ├── routes/
-│   │   └── jobRoleRouter.ts        # Route wiring
+│   │   ├── jobRoleRouter.ts             # Job role route wiring
+│   │   └── userRouter.ts                # Authentication route wiring
 │   ├── dtos/
-│   │   └── jobRoleDto.ts           # DTOs + Zod schemas
+│   │   ├── jobRoleDto.ts                # Job role DTOs + Zod schemas
+│   │   └── userDto.ts                   # User DTOs + Zod schemas
 │   ├── mappers/
-│   │   └── jobRoleMapper.ts        # Domain -> response mapping
+│   │   ├── jobRoleMapper.ts             # Job role domain -> response mapping
+│   │   └── userMapper.ts                # User domain -> response mapping
 │   └── models/
-│       ├── jobRole.ts              # Domain model
-│       └── jobRoleResponse.ts      # Response model
+│       ├── jobRole.ts                   # Job role domain model
+│       ├── jobRoleResponse.ts           # Job role response model
+│       ├── user.ts                      # User domain model
+│       └── userResponse.ts              # User response model
 ├── prisma/
 │   ├── schema.prisma
 │   ├── seed.ts
@@ -43,24 +51,73 @@ Backend API for managing Job Roles using Node.js, TypeScript, Express, and Prism
 │   ├── app.test.ts
 │   ├── index.test.ts
 │   ├── controllers/
-│   │   └── jobRoleController.test.ts
+│   │   ├── jobRoleController.test.ts
+│   │   └── userController.test.ts
 │   ├── services/
-│   │   └── jobRoleService.test.ts
+│   │   ├── jobRoleService.test.ts
+│   │   └── authenticationService.test.ts
 │   └── routes/
-│       └── jobRoleRoutes.test.ts
+│       ├── jobRoleRoutes.test.ts
+│       └── userRoutes.test.ts
+├── AUTHENTICATION.md                     # Authentication system documentation
 ├── package.json
 └── tsconfig.json
 ```
 
 ## API Endpoints
 
+### Health & General
 - `GET /` - Welcome message
 - `GET /health` - Service health status
+
+### Authentication
+- `POST /auth/register` - Register a new user
+- `POST /auth/login` - Login with email and password
+
+### Job Roles
 - `GET /job-roles` - List all job roles
 - `GET /job-roles/:id` - Get job role by id
 - `POST /job-roles` - Create job role
 - `PUT /job-roles/:id` - Update job role
 - `DELETE /job-roles/:id` - Delete job role
+
+## Authentication System
+
+This backend includes a complete user authentication system with JWT-based token management. Key features:
+
+- **User Registration**: Create new user accounts with email and password
+- **User Login**: Authenticate with email and password, receive JWT token
+- **Password Security**: Passwords are hashed with bcrypt (10 salt rounds)
+- **JWT Tokens**: 24-hour expiration with HS256 algorithm
+- **Role-Based Infrastructure**: Support for different user roles (applicant, recruiter, admin)
+- **Bearer Token Response**: Tokens returned in response body for client storage
+
+For detailed authentication documentation, see [AUTHENTICATION.md](AUTHENTICATION.md).
+
+### Registration Example
+
+```json
+POST /auth/register
+{
+  "firstName": "John",
+  "lastName": "Doe",
+  "email": "john@example.com",
+  "password": "password123",
+  "roleId": "applicant"
+}
+```
+
+### Login Example
+
+```json
+POST /auth/login
+{
+  "email": "john@example.com",
+  "password": "password123"
+}
+```
+
+Response includes JWT token for authenticated requests.
 
 ## How to Run
 
