@@ -15,6 +15,11 @@ export const CreateJobRoleSchema = z.object({
 	bandId: z.number().int().positive(),
 	closingDate: z.string().nonempty(),
 	status: z.string().nonempty(),
+	description: z.string().trim().min(1).optional(),
+	responsibilities: z.string().trim().min(1).optional(),
+	sharepointUrl: z.url().optional(),
+	statusId: z.number().int().positive().optional(),
+	numberOfOpenPositions: z.number().int().nonnegative().optional(),
 });
 
 export type CreateJobRoleRequestDto = z.infer<typeof CreateJobRoleSchema>;

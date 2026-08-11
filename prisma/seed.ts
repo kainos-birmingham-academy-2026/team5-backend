@@ -78,6 +78,60 @@ async function main() {
 		},
 	});
 
+	await prisma.jobRole.deleteMany();
+
+	await prisma.jobRole.createMany({
+		data: [
+			{
+				roleName: "Software Engineer",
+				location: "New York",
+				capabilityId: 1,
+				bandId: 2,
+				closingDate: "2027-12-31",
+				status: "Open",
+				description: "Build and maintain backend services for hiring workflows.",
+				responsibilities:
+					"Design APIs, write tests, and collaborate with frontend teams.",
+				sharepointUrl:
+					"https://sharepoint.local/job-specifications/software-engineer",
+				statusId: 1,
+				numberOfOpenPositions: 3,
+			},
+			{
+				roleName: "Data Scientist",
+				location: "San Francisco",
+				capabilityId: 2,
+				bandId: 3,
+				closingDate: "2027-11-30",
+				status: "Open",
+				description:
+					"Analyze recruitment trends and build candidate scoring models.",
+				responsibilities:
+					"Prepare datasets, train models, and present insights to stakeholders.",
+				sharepointUrl:
+					"https://sharepoint.local/job-specifications/data-scientist",
+				statusId: 1,
+				numberOfOpenPositions: 2,
+			},
+			{
+				roleName: "Product Manager",
+				location: "Chicago",
+				capabilityId: 3,
+				bandId: 4,
+				closingDate: "2027-10-15",
+				status: "Closed",
+				description:
+					"Own product roadmap for applicant and recruiter experiences.",
+				responsibilities:
+					"Prioritize backlog, define requirements, and run delivery ceremonies.",
+				sharepointUrl:
+					"https://sharepoint.local/job-specifications/product-manager",
+				statusId: 2,
+				numberOfOpenPositions: 0,
+			},
+		],
+	});
+
 	console.log(
 		"✅ Seed completed: Roles and user data seeded with argon2 hashed passwords",
 	);
