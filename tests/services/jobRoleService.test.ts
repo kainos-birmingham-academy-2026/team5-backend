@@ -17,6 +17,11 @@ describe("JobRoleService", () => {
 		"Open",
 		"Engineering",
 		"Band 2",
+		"Build APIs for core platform",
+		"Own backend endpoints and integrations",
+		"https://sharepoint.local/job-role/backend-engineer",
+		1,
+		3,
 	);
 
 	const role2 = new JobRole(
@@ -140,6 +145,11 @@ describe("JobRoleService", () => {
 			status: "Open",
 			capabilityId: 1,
 			bandId: 2,
+			description: "Build APIs for core platform",
+			responsibilities: "Own backend endpoints and integrations",
+			sharepointUrl: "https://sharepoint.local/job-role/backend-engineer",
+			statusId: 1,
+			numberOfOpenPositions: 3,
 		});
 	});
 

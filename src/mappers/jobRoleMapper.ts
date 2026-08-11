@@ -32,6 +32,11 @@ export const JobRoleMapper = {
 			status: jobRole.status,
 			capabilityId: jobRole.capabilityId,
 			bandId: jobRole.bandId,
+			description: jobRole.description,
+			responsibilities: jobRole.responsibilities,
+			sharepointUrl: jobRole.sharepointUrl,
+			statusId: jobRole.statusId,
+			numberOfOpenPositions: jobRole.numberOfOpenPositions,
 		};
 	},
 };

@@ -149,6 +149,13 @@ describe("JobRoleController", () => {
 			bandName: "Band 2",
 			closingDate: "2027-12-31",
 			status: "Open",
+			description: "Build APIs for core platform",
+			responsibilities: "Own backend endpoints and integrations",
+			sharepointUrl: "https://sharepoint.local/job-role/backend-engineer",
+			statusId: 1,
+			numberOfOpenPositions: 3,
+			capabilityId: 1,
+			bandId: 2,
 		};
 		vi.mocked(serviceMock.findDetailedById).mockResolvedValue(role as never);
 
