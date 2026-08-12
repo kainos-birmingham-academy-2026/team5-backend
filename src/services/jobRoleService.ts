@@ -3,15 +3,25 @@ import type {
 	CreateJobRoleRequestDto,
 	JobRoleResponseDto,
 } from "../dtos/jobRoleDto";
+import type { PaginatedJobRolesDto } from "../dtos/paginationDto";
 import { JobRoleMapper } from "../mappers/jobRoleMapper";
 
 export class JobRoleService {
 	constructor(private readonly jobRoleDao: JobRoleDao = new JobRoleDao()) {}
 
-	async findAll(): Promise<JobRoleResponseDto[]> {
-		const jobRoles = await this.jobRoleDao.findAll();
+	async findAll(page: number, pageSize: number): Promise<PaginatedJobRolesDto> {
+		const { jobRoles, totalItems } = await this.jobRoleDao.findAll(
+			page,
+			pageSize,
+		);
 
-		return JobRoleMapper.toResponses(jobRoles);
+		return {
+			items: JobRoleMapper.toResponses(jobRoles),
+			page,
+			pageSize,
+			totalItems,
+			totalPages: Math.ceil(totalItems / pageSize),
+		};
 	}
 
 	async findById(id: number): Promise<JobRoleResponseDto | null> {

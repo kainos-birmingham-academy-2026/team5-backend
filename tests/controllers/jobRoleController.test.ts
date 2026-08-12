@@ -10,6 +10,7 @@ describe("JobRoleController", () => {
 	const createMockReq = (overrides?: Partial<Request>): Request =>
 		({
 			params: {},
+			query: {},
 			body: {},
 			...overrides,
 		}) as Request;
@@ -36,28 +37,82 @@ describe("JobRoleController", () => {
 		controller = new JobRoleController(serviceMock);
 	});
 
-	it("getAllJobRoles returns 200 with array", async () => {
+	it("getAllJobRoles uses defaults and returns a paginated response", async () => {
 		const req = createMockReq();
 		const res = createMockRes();
-		const roles = [
-			{
-				jobRoleId: 1,
-				roleName: "Backend Engineer",
-				location: "Cairo",
-				capabilityName: "Engineering",
-				bandName: "Band 2",
-				closingDate: "2027-12-31",
-				status: "Open",
-			},
-		];
-		vi.mocked(serviceMock.findAll).mockResolvedValue(roles as never);
+		const result = {
+			items: [
+				{
+					jobRoleId: 1,
+					roleName: "Backend Engineer",
+					location: "Cairo",
+					capabilityName: "Engineering",
+					bandName: "Band 2",
+					closingDate: "2027-12-31",
+					status: "Open",
+				},
+			],
+			page: 1,
+			pageSize: 10,
+			totalItems: 1,
+			totalPages: 1,
+		};
+		vi.mocked(serviceMock.findAll).mockResolvedValue(result);
 
 		await controller.getAllJobRoles(req, res);
 
-		expect(serviceMock.findAll).toHaveBeenCalledOnce();
+		expect(serviceMock.findAll).toHaveBeenCalledWith(1, 10);
 		expect(res.status).toHaveBeenCalledWith(200);
-		expect(res.json).toHaveBeenCalledWith(roles);
+		expect(res.json).toHaveBeenCalledWith(result);
 	});
+
+	it("getAllJobRoles accepts the maximum page size", async () => {
+		const req = createMockReq({ query: { page: "2", pageSize: "100" } });
+		const res = createMockRes();
+		const result = {
+			items: [],
+			page: 2,
+			pageSize: 100,
+			totalItems: 0,
+			totalPages: 0,
+		};
+		vi.mocked(serviceMock.findAll).mockResolvedValue(result);
+
+		await controller.getAllJobRoles(req, res);
+
+		expect(serviceMock.findAll).toHaveBeenCalledWith(2, 100);
+		expect(res.status).toHaveBeenCalledWith(200);
+		expect(res.json).toHaveBeenCalledWith(result);
+	});
+
+	it("getAllJobRoles rejects a page size above the maximum", async () => {
+		const req = createMockReq({ query: { pageSize: "101" } });
+		const res = createMockRes();
+
+		await controller.getAllJobRoles(req, res);
+
+		expect(serviceMock.findAll).not.toHaveBeenCalled();
+		expect(res.status).toHaveBeenCalledWith(400);
+		expect(res.json).toHaveBeenCalledWith({
+			error: "Invalid pagination parameters",
+		});
+	});
+
+	it.each(["0", "-1", "1.5", "invalid"])(
+		"getAllJobRoles rejects invalid page %s",
+		async (page) => {
+			const req = createMockReq({ query: { page } });
+			const res = createMockRes();
+
+			await controller.getAllJobRoles(req, res);
+
+			expect(serviceMock.findAll).not.toHaveBeenCalled();
+			expect(res.status).toHaveBeenCalledWith(400);
+			expect(res.json).toHaveBeenCalledWith({
+				error: "Invalid pagination parameters",
+			});
+		},
+	);
 
 	it("getJobRoleById returns 400 for invalid id", async () => {
 		const req = createMockReq({ params: { id: "abc" } as Request["params"] });
