@@ -55,17 +55,74 @@ async function main() {
 
 	// Seed roles
 	const roles = ["applicant", "recruiter", "admin"];
+	const roleIds = new Map<string, number>();
 
 	for (const roleName of roles) {
-		await prisma.role.upsert({
+		const role = await prisma.role.upsert({
 			where: { name: roleName },
 			update: {},
 			create: { name: roleName },
 		});
+		roleIds.set(roleName, role.id);
 	}
+
+	// Seed lookup tables used by job role foreign keys
+	await prisma.capability.upsert({
+		where: { capabilityId: 1 },
+		update: { capabilityName: "Engineering" },
+		create: { capabilityId: 1, capabilityName: "Engineering" },
+	});
+
+	await prisma.capability.upsert({
+		where: { capabilityId: 2 },
+		update: { capabilityName: "Data" },
+		create: { capabilityId: 2, capabilityName: "Data" },
+	});
+
+	await prisma.capability.upsert({
+		where: { capabilityId: 3 },
+		update: { capabilityName: "Product" },
+		create: { capabilityId: 3, capabilityName: "Product" },
+	});
+
+	await prisma.band.upsert({
+		where: { nameId: 2 },
+		update: { bandName: "Band 2" },
+		create: { nameId: 2, bandName: "Band 2" },
+	});
+
+	await prisma.band.upsert({
+		where: { nameId: 3 },
+		update: { bandName: "Band 3" },
+		create: { nameId: 3, bandName: "Band 3" },
+	});
+
+	await prisma.band.upsert({
+		where: { nameId: 4 },
+		update: { bandName: "Band 4" },
+		create: { nameId: 4, bandName: "Band 4" },
+	});
+
+	await prisma.status.upsert({
+		where: { statusId: 1 },
+		update: { statusName: "Open" },
+		create: { statusId: 1, statusName: "Open" },
+	});
+
+	await prisma.status.upsert({
+		where: { statusId: 2 },
+		update: { statusName: "Closed" },
+		create: { statusId: 2, statusName: "Closed" },
+	});
 
 	// Seed John Doe user with argon2 hashed password
 	const hashedPassword = await hash("SecurePass123");
+	const applicantRoleId = roleIds.get("applicant");
+
+	if (!applicantRoleId) {
+		throw new Error('Role "applicant" was not seeded correctly');
+	}
+
 	await prisma.user.upsert({
 		where: { email: "john@example.com" },
 		update: { password: hashedPassword },
@@ -74,7 +131,7 @@ async function main() {
 			lastName: "Doe",
 			email: "john@example.com",
 			password: hashedPassword,
-			roleId: 1,
+			roleId: applicantRoleId,
 		},
 	});
 

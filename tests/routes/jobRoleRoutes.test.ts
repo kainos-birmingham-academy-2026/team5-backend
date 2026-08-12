@@ -83,6 +83,8 @@ describe("Job Role Routes", () => {
 
 		expect(response.status).toBe(200);
 		expect(response.body).toEqual(role);
+		expect(response.body.status).toBe("Open");
+		expect(response.body.numberOfOpenPositions).toBe(3);
 	});
 
 	it("GET /job-roles/:id returns 400 for invalid id", async () => {
