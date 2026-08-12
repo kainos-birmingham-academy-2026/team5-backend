@@ -1,0 +1,86 @@
+name: Automated Code Review
+
+on:
+  pull_request:
+    branches:
+      - main
+      - master
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - ready_for_review
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  local-code-review:
+    name: Local code review
+    if: github.event_name == 'workflow_dispatch' || github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      GH_TOKEN: ${{ secrets.COPILOT_TOKEN }}
+    steps:
+      - name: Check out full history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha || github.ref }}
+
+      - name: Check out pull request branch
+        if: github.event_name == 'pull_request'
+        run: git checkout -B "$GITHUB_HEAD_REF"
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Require Copilot token
+        run: |
+          if [[ -z "$GH_TOKEN" ]]; then
+            echo "COPILOT_TOKEN is required and must have Copilot Requests permission."
+            exit 1
+          fi
+
+      - name: Install GitHub Copilot CLI
+        run: npm install --global @github/copilot@1.0.72
+
+      - name: Run local code review
+        shell: bash
+        run: |
+          mkdir -p code_reviews
+          set -o pipefail
+          copilot -p "/local-code-review" \
+            --stream off \
+            --allow-all-tools \
+            --allow-all-paths \
+            --allow-all-urls \
+            | tee code_reviews/copilot-cli-output.txt
+
+      - name: Publish review to workflow summary
+        if: always()
+        shell: bash
+        run: |
+          report=$(find code_reviews -maxdepth 1 -type f -name '*.md' -print -quit)
+          if [[ -n "$report" ]]; then
+            cat "$report" >> "$GITHUB_STEP_SUMMARY"
+          else
+            {
+              echo "# Code review unavailable"
+              echo
+              echo "No Markdown review report was generated. Check the workflow logs."
+            } >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Upload review report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: code-review-${{ github.run_id }}
+          path: code_reviews/
+          if-no-files-found: warn
+          retention-days: 14

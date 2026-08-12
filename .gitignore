@@ -4,3 +4,4 @@ coverage
 .env
 /src/generated/prisma
 /.github/prompts
+code_reviews/
