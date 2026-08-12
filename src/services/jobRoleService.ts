@@ -31,8 +31,9 @@ export class JobRoleService {
 		return jobRole ? JobRoleMapper.toResponse(jobRole) : null;
 	}
 
-
-	async findDetailedById(id: number): Promise<JobRoleDetailedResponseDto | null> {
+	async findDetailedById(
+		id: number,
+	): Promise<JobRoleDetailedResponseDto | null> {
 		const jobRole = await this.jobRoleDao.findById(id);
 
 		return jobRole ? JobRoleMapper.toDetailedResponse(jobRole) : null;

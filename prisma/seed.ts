@@ -146,7 +146,8 @@ async function main() {
 				bandId: 2,
 				closingDate: "2027-12-31",
 				status: "Open",
-				description: "Build and maintain backend services for hiring workflows.",
+				description:
+					"Build and maintain backend services for hiring workflows.",
 				responsibilities:
 					"Design APIs, write tests, and collaborate with frontend teams.",
 				sharepointUrl:

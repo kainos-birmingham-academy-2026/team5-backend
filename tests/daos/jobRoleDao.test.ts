@@ -41,7 +41,7 @@ describe("JobRoleDao", () => {
 		const result = await new JobRoleDao().findAll(3, 5);
 
 		expect(prismaMock.jobRole.findMany).toHaveBeenCalledWith({
-			include: { capability: true, band: true },
+			include: { capability: true, band: true, statusRef: true },
 			skip: 10,
 			take: 5,
 		});
