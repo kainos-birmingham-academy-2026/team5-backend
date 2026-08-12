@@ -42,41 +42,7 @@ async function main() {
 		statusIds.set(statusName, status.statusId);
 	}
 
-<<<<<<< HEAD
 	const hashedPassword = await hash("SecurePass123");
-=======
-	await prisma.band.upsert({
-		where: { nameId: 2 },
-		update: { bandName: "Band 2" },
-		create: { nameId: 2, bandName: "Band 2" },
-	});
-
-	await prisma.band.upsert({
-		where: { nameId: 3 },
-		update: { bandName: "Band 3" },
-		create: { nameId: 3, bandName: "Band 3" },
-	});
-
-	await prisma.band.upsert({
-		where: { nameId: 4 },
-		update: { bandName: "Band 4" },
-		create: { nameId: 4, bandName: "Band 4" },
-	});
-
-	await prisma.status.upsert({
-		where: { statusId: 1 },
-		update: { statusName: "Open" },
-		create: { statusId: 1, statusName: "Open" },
-	});
-
-	await prisma.status.upsert({
-		where: { statusId: 2 },
-		update: { statusName: "Closed" },
-		create: { statusId: 2, statusName: "Closed" },
-	});
-
-	// Seed users with argon2 hashed passwords
->>>>>>> 58c8558 (Registration system complete)
 	const applicantRoleId = roleIds.get("applicant");
 	const recruiterRoleId = roleIds.get("recruiter");
 
@@ -98,7 +64,6 @@ async function main() {
 		},
 	});
 
-<<<<<<< HEAD
 	const jobRoles = [
 		{
 			roleName: "Software Engineer",
@@ -145,7 +110,6 @@ async function main() {
 			numberOfOpenPositions: 0,
 		},
 	];
-=======
 	// Seed Jane Smith (recruiter)
 	const janePassword = await hash("RecruitPass#456");
 	await prisma.user.upsert({
@@ -161,7 +125,6 @@ async function main() {
 	});
 
 	await prisma.jobRole.deleteMany();
->>>>>>> 58c8558 (Registration system complete)
 
 	for (const { capabilityName, bandName, ...jobRole } of jobRoles) {
 		const capabilityId = capabilityIds.get(capabilityName);
