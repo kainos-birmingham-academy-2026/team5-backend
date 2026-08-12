@@ -1,6 +1,55 @@
 # Team 5 Backend
 
-Backend API for managing Job Roles using Node.js, TypeScript, Express, and Prisma.
+Backend API for the Team 5 careers application, using Node.js, TypeScript,
+Express, and Prisma. The server-rendered web application is in the sibling
+[team5-frontend repository](https://github.com/kainos-birmingham-academy-2026/team5-frontend).
+
+## Run the Complete Application
+
+Keep both repositories next to each other with these directory names:
+
+```text
+Group project/
+├── team5-backend/
+└── team5-frontend/
+```
+
+From inside either repository, run:
+
+```bash
+npm run dev:stack
+```
+
+Or, from the parent `Group project` workspace directory, run:
+
+```bash
+npm run dev:stack --prefix team5-backend
+```
+
+This one command:
+
+1. Installs frontend or backend dependencies when `node_modules` is missing.
+2. Loads `team5-backend/.env` when present.
+3. Uses its `DATABASE_URL`, starting a matching stopped local Docker container
+  when found, or starts the included Docker PostgreSQL when none is set.
+4. Generates the Prisma client, deploys migrations, and safely seeds data.
+5. Starts the backend and frontend with `[backend]` and `[frontend]` log prefixes.
+
+Open the frontend at `http://localhost:4000`. The backend API is available at
+`http://localhost:3000`. Press Ctrl+C once to stop both Node services.
+
+Docker PostgreSQL remains running so its data is preserved. Stop it separately
+with:
+
+```bash
+docker compose -f compose.dev.yml down
+```
+
+To use an existing local or hosted PostgreSQL database instead, copy
+`.env.example` to `.env`, uncomment `DATABASE_URL`, and provide the correct
+connection string. Docker is only required when `DATABASE_URL` is absent. The
+Docker fallback exposes PostgreSQL on host port `5433` to avoid clashing with a
+standard local PostgreSQL installation on `5432`.
 
 ## Tech Stack
 
@@ -120,7 +169,7 @@ POST /auth/login
 
 Response includes JWT token for authenticated requests.
 
-## How to Run
+## Run the Backend Only
 
 1. Install dependencies:
 
@@ -128,11 +177,14 @@ Response includes JWT token for authenticated requests.
 npm install
 ```
 
-2. (If needed for DB-backed flows) ensure `DATABASE_URL` is set in `.env`.
+2. Copy `.env.example` to `.env` and set `DATABASE_URL`.
 
-3. Start dev server:
+3. Prepare Prisma and start the development server:
 
 ```bash
+npx prisma generate
+npx prisma migrate deploy
+npx prisma db seed
 npm run dev
 ```
 
