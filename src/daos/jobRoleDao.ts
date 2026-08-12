@@ -6,6 +6,7 @@ import prisma from "../prismaClient";
 const jobRoleRelationsInclude = {
 	capability: true,
 	band: true,
+	statusRef: true,
 } as const;
 
 type JobRoleWithRelations = Prisma.JobRoleGetPayload<{
@@ -18,14 +19,20 @@ export class JobRoleDao {
 	private async validateRelations(
 		capabilityId: number,
 		bandId: number,
+		statusId?: number | null,
 	): Promise<void> {
-		const [capability, band] = await Promise.all([
+		const [capability, band, status] = await Promise.all([
 			prisma.capability.findUnique({
 				where: { capabilityId },
 			}),
 			prisma.band.findUnique({
 				where: { nameId: bandId },
 			}),
+			statusId == null
+				? Promise.resolve(null)
+				: prisma.status.findUnique({
+						where: { statusId },
+					}),
 		]);
 
 		if (!capability) {
@@ -34,6 +41,10 @@ export class JobRoleDao {
 
 		if (!band) {
 			throw new Error(`Band ${bandId} does not exist`);
+		}
+
+		if (statusId != null && !status) {
+			throw new Error(`Status ${statusId} does not exist`);
 		}
 	}
 
@@ -56,6 +67,11 @@ export class JobRoleDao {
 			jobRole.status,
 			jobRole.capability.capabilityName,
 			jobRole.band.bandName,
+			jobRole.description,
+			jobRole.responsibilities,
+			jobRole.sharepointUrl,
+			jobRole.statusId,
+			jobRole.numberOfOpenPositions,
 		);
 	}
 
@@ -90,7 +106,11 @@ export class JobRoleDao {
 	}
 
 	async create(jobRoleData: CreateJobRoleRequestDto): Promise<JobRole> {
-		await this.validateRelations(jobRoleData.capabilityId, jobRoleData.bandId);
+		await this.validateRelations(
+			jobRoleData.capabilityId,
+			jobRoleData.bandId,
+			jobRoleData.statusId,
+		);
 
 		const jobRole = await prisma.jobRole.create({
 			data: this.toCreateData(jobRoleData),
@@ -115,6 +135,7 @@ export class JobRoleDao {
 		await this.validateRelations(
 			jobRoleData.capabilityId ?? existingJobRole.capabilityId,
 			jobRoleData.bandId ?? existingJobRole.bandId,
+			jobRoleData.statusId ?? existingJobRole.statusId,
 		);
 
 		const updatedJobRole = await prisma.jobRole.update({

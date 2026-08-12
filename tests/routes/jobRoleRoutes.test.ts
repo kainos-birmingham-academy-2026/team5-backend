@@ -4,6 +4,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const serviceMock = vi.hoisted(() => ({
 	findAll: vi.fn(),
 	findById: vi.fn(),
+	findDetailedById: vi.fn(),
 	create: vi.fn(),
 	update: vi.fn(),
 	delete: vi.fn(),
@@ -68,13 +69,22 @@ describe("Job Role Routes", () => {
 			bandName: "Band 2",
 			closingDate: "2027-12-31",
 			status: "Open",
+			description: "Build APIs for core platform",
+			responsibilities: "Own backend endpoints and integrations",
+			sharepointUrl: "https://sharepoint.local/job-role/backend-engineer",
+			statusId: 1,
+			numberOfOpenPositions: 3,
+			capabilityId: 1,
+			bandId: 2,
 		};
-		serviceMock.findById.mockResolvedValue(role);
+		serviceMock.findDetailedById.mockResolvedValue(role);
 
 		const response = await request(app).get("/job-roles/1");
 
 		expect(response.status).toBe(200);
 		expect(response.body).toEqual(role);
+		expect(response.body.status).toBe("Open");
+		expect(response.body.numberOfOpenPositions).toBe(3);
 	});
 
 	it("GET /job-roles/:id returns 400 for invalid id", async () => {
@@ -82,11 +92,11 @@ describe("Job Role Routes", () => {
 
 		expect(response.status).toBe(400);
 		expect(response.body).toEqual({ error: "Invalid ID provided" });
-		expect(serviceMock.findById).not.toHaveBeenCalled();
+		expect(serviceMock.findDetailedById).not.toHaveBeenCalled();
 	});
 
 	it("GET /job-roles/:id returns 404 when missing", async () => {
-		serviceMock.findById.mockResolvedValue(null);
+		serviceMock.findDetailedById.mockResolvedValue(null);
 
 		const response = await request(app).get("/job-roles/999");
 

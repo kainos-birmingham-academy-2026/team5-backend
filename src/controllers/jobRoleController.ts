@@ -14,7 +14,7 @@ export class JobRoleController {
 			return;
 		}
 
-		const jobRole = await this.jobRoleService.findById(id);
+		const jobRole = await this.jobRoleService.findDetailedById(id);
 		if (!jobRole) {
 			res.status(404).json({ error: "Job role not found" });
 			return;

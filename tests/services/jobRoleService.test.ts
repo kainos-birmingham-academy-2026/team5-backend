@@ -17,6 +17,11 @@ describe("JobRoleService", () => {
 		"Open",
 		"Engineering",
 		"Band 2",
+		"Build APIs for core platform",
+		"Own backend endpoints and integrations",
+		"https://sharepoint.local/job-role/backend-engineer",
+		1,
+		3,
 	);
 
 	const role2 = new JobRole(
@@ -119,6 +124,39 @@ describe("JobRoleService", () => {
 		vi.mocked(daoMock.findById).mockResolvedValue(null);
 
 		const result = await service.findById(999);
+
+		expect(daoMock.findById).toHaveBeenCalledWith(999);
+		expect(result).toBeNull();
+	});
+
+	it("findDetailedById returns detailed mapped dto when found", async () => {
+		vi.mocked(daoMock.findById).mockResolvedValue(role1);
+
+		const result = await service.findDetailedById(1);
+
+		expect(daoMock.findById).toHaveBeenCalledWith(1);
+		expect(result).toEqual({
+			jobRoleId: 1,
+			roleName: "Backend Engineer",
+			location: "Cairo",
+			capabilityName: "Engineering",
+			bandName: "Band 2",
+			closingDate: "2027-12-31",
+			status: "Open",
+			capabilityId: 1,
+			bandId: 2,
+			description: "Build APIs for core platform",
+			responsibilities: "Own backend endpoints and integrations",
+			sharepointUrl: "https://sharepoint.local/job-role/backend-engineer",
+			statusId: 1,
+			numberOfOpenPositions: 3,
+		});
+	});
+
+	it("findDetailedById returns null when dao returns null", async () => {
+		vi.mocked(daoMock.findById).mockResolvedValue(null);
+
+		const result = await service.findDetailedById(999);
 
 		expect(daoMock.findById).toHaveBeenCalledWith(999);
 		expect(result).toBeNull();

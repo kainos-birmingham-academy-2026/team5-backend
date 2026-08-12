@@ -1,6 +1,7 @@
 import { JobRoleDao } from "../daos/jobRoleDao";
 import type {
 	CreateJobRoleRequestDto,
+	JobRoleDetailedResponseDto,
 	JobRoleResponseDto,
 } from "../dtos/jobRoleDto";
 import type { PaginatedJobRolesDto } from "../dtos/paginationDto";
@@ -28,6 +29,14 @@ export class JobRoleService {
 		const jobRole = await this.jobRoleDao.findById(id);
 
 		return jobRole ? JobRoleMapper.toResponse(jobRole) : null;
+	}
+
+	async findDetailedById(
+		id: number,
+	): Promise<JobRoleDetailedResponseDto | null> {
+		const jobRole = await this.jobRoleDao.findById(id);
+
+		return jobRole ? JobRoleMapper.toDetailedResponse(jobRole) : null;
 	}
 
 	async create(

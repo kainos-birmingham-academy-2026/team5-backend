@@ -1,7 +1,11 @@
 import { z } from "zod";
-import type { JobRoleResponse } from "../models/jobRoleResponse";
+import type {
+	JobRoleDetailedResponse,
+	JobRoleResponse,
+} from "../models/jobRoleResponse";
 
 export type JobRoleResponseDto = JobRoleResponse;
+export type JobRoleDetailedResponseDto = JobRoleDetailedResponse;
 
 export const CreateJobRoleSchema = z.object({
 	jobRoleId: z.number().int().positive(),
@@ -11,6 +15,11 @@ export const CreateJobRoleSchema = z.object({
 	bandId: z.number().int().positive(),
 	closingDate: z.string().nonempty(),
 	status: z.string().nonempty(),
+	description: z.string().trim().min(1).optional(),
+	responsibilities: z.string().trim().min(1).optional(),
+	sharepointUrl: z.url().optional(),
+	statusId: z.number().int().positive().optional(),
+	numberOfOpenPositions: z.number().int().nonnegative().optional(),
 });
 
 export type CreateJobRoleRequestDto = z.infer<typeof CreateJobRoleSchema>;
