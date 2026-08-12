@@ -5,3 +5,4 @@ coverage
 /src/generated/prisma
 /.github/prompts
 code_reviews/
+logs/
