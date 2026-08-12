@@ -1,9 +1,10 @@
 import app from "./app";
+import Logger from "./lib/logger";
 
 const PORT = 3000;
 
 // Start server
 app.listen(PORT, () => {
-	console.log(`🚀 Server running on http://localhost:${PORT}`);
-	console.log(`📝 Try: http://localhost:${PORT}/health`);
+	Logger.info(`🚀 Server running on http://localhost:${PORT}`);
+	Logger.info(`📝 Try: http://localhost:${PORT}/health`);
 });

@@ -1,9 +1,11 @@
 import express from "express";
+import morganMiddleware from "./config/morganMiddleware";
 import jobRoleRouter from "./routes/jobRoleRouter";
 import userRouter from "./routes/userRouter";
 
 const app = express();
 
+app.use(morganMiddleware);
 app.use(express.json());
 app.use(jobRoleRouter);
 app.use(userRouter);
