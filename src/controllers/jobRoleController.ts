@@ -1,6 +1,6 @@
 import type { Request, Response } from "express";
 import type { CreateJobRoleRequestDto } from "../dtos/jobRoleDto";
-import { PaginationQuerySchema } from "../dtos/paginationDto";
+import { JobRoleFilterQuerySchema } from "../dtos/jobRoleFilterDto";
 import type { JobRoleService } from "../services/jobRoleService.js";
 
 export class JobRoleController {
@@ -96,15 +96,24 @@ export class JobRoleController {
 	}
 
 	async getAllJobRoles(req: Request, res: Response): Promise<void> {
-		const pagination = PaginationQuerySchema.safeParse(req.query);
+		const query = JobRoleFilterQuerySchema.safeParse(req.query);
 
-		if (!pagination.success) {
-			res.status(400).json({ error: "Invalid pagination parameters" });
+		if (!query.success) {
+			res.status(400).json({ error: "Invalid query parameters" });
 			return;
 		}
 
-		const { page, pageSize } = pagination.data;
-		const paginatedJobRoles = await this.jobRoleService.findAll(page, pageSize);
+		const { page, pageSize, ...filters } = query.data;
+		const paginatedJobRoles = await this.jobRoleService.findAll(
+			page,
+			pageSize,
+			filters,
+		);
 		res.status(200).json(paginatedJobRoles);
+	}
+
+	async getFilterOptions(_req: Request, res: Response): Promise<void> {
+		const options = await this.jobRoleService.getFilterOptions();
+		res.status(200).json(options);
 	}
 }

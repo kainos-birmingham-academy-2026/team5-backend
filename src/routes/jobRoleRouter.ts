@@ -14,6 +14,10 @@ jobRoleRouter.get(
 	jobRoleController.getAllJobRoles.bind(jobRoleController),
 );
 jobRoleRouter.get(
+	"/job-roles/filter-options",
+	jobRoleController.getFilterOptions.bind(jobRoleController),
+);
+jobRoleRouter.get(
 	"/job-roles/:id",
 	jobRoleController.getJobRoleById.bind(jobRoleController),
 );

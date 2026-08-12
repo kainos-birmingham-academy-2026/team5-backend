@@ -75,7 +75,8 @@ Backend API for managing Job Roles using Node.js, TypeScript, Express, and Prism
 - `POST /auth/login` - Login with email and password
 
 ### Job Roles
-- `GET /job-roles` - List all job roles
+- `GET /job-roles` - List job roles with pagination and optional filters: `roleName`, `location`, `capability`, `band`, `status`, and `closingDate`. Repeat checkbox parameters such as `status=Open&status=Closed` to match either value.
+- `GET /job-roles/filter-options` - List available capability, band, and status filter values
 - `GET /job-roles/:id` - Get job role by id
 - `POST /job-roles` - Create job role
 - `PUT /job-roles/:id` - Update job role

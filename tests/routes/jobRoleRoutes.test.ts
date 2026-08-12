@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const serviceMock = vi.hoisted(() => ({
 	findAll: vi.fn(),
+	getFilterOptions: vi.fn(),
 	findById: vi.fn(),
 	findDetailedById: vi.fn(),
 	create: vi.fn(),
@@ -47,7 +48,11 @@ describe("Job Role Routes", () => {
 
 		expect(response.status).toBe(200);
 		expect(response.body).toEqual(result);
-		expect(serviceMock.findAll).toHaveBeenCalledWith(1, 10);
+		expect(serviceMock.findAll).toHaveBeenCalledWith(1, 10, {
+			capability: [],
+			band: [],
+			status: [],
+		});
 	});
 
 	it("GET /job-roles rejects pageSize above 100", async () => {
@@ -55,9 +60,23 @@ describe("Job Role Routes", () => {
 
 		expect(response.status).toBe(400);
 		expect(response.body).toEqual({
-			error: "Invalid pagination parameters",
+			error: "Invalid query parameters",
 		});
 		expect(serviceMock.findAll).not.toHaveBeenCalled();
+	});
+
+	it("GET /job-roles/filter-options returns available checkbox values", async () => {
+		const options = {
+			capabilities: ["Data", "Engineering"],
+			bands: ["Band 1", "Band 2"],
+			statuses: ["Closed", "Open"],
+		};
+		serviceMock.getFilterOptions.mockResolvedValue(options);
+
+		const response = await request(app).get("/job-roles/filter-options");
+
+		expect(response.status).toBe(200);
+		expect(response.body).toEqual(options);
 	});
 
 	it("GET /job-roles/:id returns 200 with role", async () => {

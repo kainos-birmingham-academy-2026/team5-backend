@@ -1,5 +1,9 @@
 import type { Prisma } from "@prisma/client";
 import type { CreateJobRoleRequestDto } from "../dtos/jobRoleDto";
+import type {
+	JobRoleFilterOptionsDto,
+	JobRoleFilters,
+} from "../dtos/jobRoleFilterDto";
 import { JobRole } from "../models/jobRole";
 import prisma from "../prismaClient";
 
@@ -78,21 +82,65 @@ export class JobRoleDao {
 	async findAll(
 		page: number,
 		pageSize: number,
+		filters: JobRoleFilters,
 	): Promise<{ jobRoles: JobRole[]; totalItems: number }> {
 		const skip = (page - 1) * pageSize;
+		const where: Prisma.JobRoleWhereInput = {
+			roleName: filters.roleName
+				? { contains: filters.roleName, mode: "insensitive" }
+				: undefined,
+			location: filters.location
+				? { contains: filters.location, mode: "insensitive" }
+				: undefined,
+			capability: filters.capability.length
+				? { capabilityName: { in: filters.capability, mode: "insensitive" } }
+				: undefined,
+			band: filters.band.length
+				? { bandName: { in: filters.band, mode: "insensitive" } }
+				: undefined,
+			status: filters.status.length
+				? { in: filters.status, mode: "insensitive" }
+				: undefined,
+			closingDate: filters.closingDate,
+		};
 
 		const [jobRoles, totalItems] = await Promise.all([
 			prisma.jobRole.findMany({
 				include: this.relationsInclude,
+				where,
 				skip,
 				take: pageSize,
 			}),
-			prisma.jobRole.count(),
+			prisma.jobRole.count({ where }),
 		]);
 
 		return {
 			jobRoles: jobRoles.map((jobRole) => this.toModel(jobRole)),
 			totalItems,
+		};
+	}
+
+	async getFilterOptions(): Promise<JobRoleFilterOptionsDto> {
+		const [capabilities, bands, statuses] = await Promise.all([
+			prisma.capability.findMany({
+				select: { capabilityName: true },
+				orderBy: { capabilityName: "asc" },
+			}),
+			prisma.band.findMany({
+				select: { bandName: true },
+				orderBy: { bandName: "asc" },
+			}),
+			prisma.jobRole.findMany({
+				select: { status: true },
+				distinct: ["status"],
+				orderBy: { status: "asc" },
+			}),
+		]);
+
+		return {
+			capabilities: capabilities.map(({ capabilityName }) => capabilityName),
+			bands: bands.map(({ bandName }) => bandName),
+			statuses: statuses.map(({ status }) => status),
 		};
 	}
 
