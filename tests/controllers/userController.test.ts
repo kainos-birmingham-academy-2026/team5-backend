@@ -73,7 +73,7 @@ describe("UserController", () => {
 
 			expect(res.status).toHaveBeenCalledWith(400);
 			expect(res.json).toHaveBeenCalled();
-			const call = (res.json as any).mock.calls[0][0];
+			const call = vi.mocked(res.json).mock.calls[0][0] as Record<string, unknown>;
 			expect(call).toHaveProperty("error");
 		});
 
@@ -183,7 +183,7 @@ describe("UserController", () => {
 
 			expect(res.status).toHaveBeenCalledWith(400);
 			expect(res.json).toHaveBeenCalled();
-			const call = (res.json as any).mock.calls[0][0];
+			const call = vi.mocked(res.json).mock.calls[0][0] as Record<string, unknown>;
 			expect(call).toHaveProperty("error");
 		});
 
@@ -272,7 +272,7 @@ describe("UserController", () => {
 			expect(userDao.findById).toHaveBeenCalledWith("user-1");
 			expect(res.status).toHaveBeenCalledWith(200);
 			expect(res.json).toHaveBeenCalled();
-			const call = (res.json as any).mock.calls[0][0];
+			const call = vi.mocked(res.json).mock.calls[0][0] as Record<string, unknown>;
 			expect(call).toHaveProperty("id");
 			expect(call).toHaveProperty("email", "john@example.com");
 		});
@@ -328,8 +328,6 @@ describe("UserController", () => {
 		it("should handle array params by taking the first element", async () => {
 			const mockUser = {
 				id: "user-1",
-				firstName: "John",
-				lastName: "Doe",
 				email: "john@example.com",
 				password: "hashed-password",
 				roleId: 1,
@@ -340,7 +338,7 @@ describe("UserController", () => {
 			vi.mocked(userDao.findById).mockResolvedValue(mockUser);
 
 			const req = createMockReq({
-				params: { id: ["user-1", "user-2"] as any },
+				params: { id: ["user-1", "user-2"] as unknown as string },
 			});
 			const res = createMockRes();
 

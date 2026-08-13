@@ -2,7 +2,7 @@ import { hash, verify } from "argon2";
 import jwt from "jsonwebtoken";
 import { userDao } from "../daos/userDao";
 import type { LoginResponseDto, RegisterRequestDto } from "../dtos/userDto";
-import { UserMapper } from "../mappers/userMapper";
+import { toDomain, toResponse } from "../mappers/userMapper";
 
 const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key-change-this";
 
@@ -25,11 +25,11 @@ export class AuthenticationService {
 		});
 
 		// Map to domain and generate token
-		const user = UserMapper.toDomain(createdUser);
+		const user = toDomain(createdUser);
 		const token = this.generateToken(user.id, user.email, user.roleId);
 
 		return {
-			user: UserMapper.toResponse(user),
+			user: toResponse(user),
 			token,
 		};
 	}
@@ -48,11 +48,11 @@ export class AuthenticationService {
 		}
 
 		// Map to domain and generate token
-		const user = UserMapper.toDomain(prismaUser);
+		const user = toDomain(prismaUser);
 		const token = this.generateToken(user.id, user.email, user.roleId);
 
 		return {
-			user: UserMapper.toResponse(user),
+			user: toResponse(user),
 			token,
 		};
 	}

@@ -42,7 +42,6 @@ async function main() {
 		statusIds.set(statusName, status.statusId);
 	}
 
-	const hashedPassword = await hash("SecurePass123");
 	const applicantRoleId = roleIds.get("applicant");
 	const recruiterRoleId = roleIds.get("recruiter");
 
