@@ -4,5 +4,6 @@ coverage
 .env
 /src/generated/prisma
 /.github/prompts
+/.github/instructions
 code_reviews/
 logs/

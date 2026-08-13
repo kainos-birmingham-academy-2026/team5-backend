@@ -42,25 +42,63 @@ async function main() {
 		statusIds.set(statusName, status.statusId);
 	}
 
+<<<<<<< HEAD
 	const hashedPassword = await hash("SecurePass123");
-	const applicantRoleId = roleIds.get("applicant");
+=======
+	await prisma.band.upsert({
+		where: { nameId: 2 },
+		update: { bandName: "Band 2" },
+		create: { nameId: 2, bandName: "Band 2" },
+	});
 
-	if (!applicantRoleId) {
-		throw new Error('Role "applicant" was not seeded correctly');
+	await prisma.band.upsert({
+		where: { nameId: 3 },
+		update: { bandName: "Band 3" },
+		create: { nameId: 3, bandName: "Band 3" },
+	});
+
+	await prisma.band.upsert({
+		where: { nameId: 4 },
+		update: { bandName: "Band 4" },
+		create: { nameId: 4, bandName: "Band 4" },
+	});
+
+	await prisma.status.upsert({
+		where: { statusId: 1 },
+		update: { statusName: "Open" },
+		create: { statusId: 1, statusName: "Open" },
+	});
+
+	await prisma.status.upsert({
+		where: { statusId: 2 },
+		update: { statusName: "Closed" },
+		create: { statusId: 2, statusName: "Closed" },
+	});
+
+	// Seed users with argon2 hashed passwords
+>>>>>>> 58c8558 (Registration system complete)
+	const applicantRoleId = roleIds.get("applicant");
+	const recruiterRoleId = roleIds.get("recruiter");
+
+	if (!applicantRoleId || !recruiterRoleId) {
+		throw new Error("Required roles were not seeded correctly");
 	}
 
+	// Seed John Doe (applicant)
+	const johnPassword = await hash("SecurePass@123");
 	await prisma.user.upsert({
 		where: { email: "john@example.com" },
-		update: { password: hashedPassword },
+		update: { password: johnPassword },
 		create: {
 			firstName: "John",
 			lastName: "Doe",
 			email: "john@example.com",
-			password: hashedPassword,
+			password: johnPassword,
 			roleId: applicantRoleId,
 		},
 	});
 
+<<<<<<< HEAD
 	const jobRoles = [
 		{
 			roleName: "Software Engineer",
@@ -107,6 +145,23 @@ async function main() {
 			numberOfOpenPositions: 0,
 		},
 	];
+=======
+	// Seed Jane Smith (recruiter)
+	const janePassword = await hash("RecruitPass#456");
+	await prisma.user.upsert({
+		where: { email: "jane@example.com" },
+		update: { password: janePassword },
+		create: {
+			firstName: "Jane",
+			lastName: "Smith",
+			email: "jane@example.com",
+			password: janePassword,
+			roleId: recruiterRoleId,
+		},
+	});
+
+	await prisma.jobRole.deleteMany();
+>>>>>>> 58c8558 (Registration system complete)
 
 	for (const { capabilityName, bandName, ...jobRole } of jobRoles) {
 		const capabilityId = capabilityIds.get(capabilityName);
