@@ -15,7 +15,7 @@ export const RegisterRequestSchema = z.object({
 	email: z.string().email("Invalid email format"),
 	password: z
 		.string()
-		.min(8, "Password must be at least 8 characters")
+		.min(9, "Password must be at least 9 characters")
 		.regex(/[A-Z]/, "Password must contain at least 1 uppercase letter")
 		.regex(/[a-z]/, "Password must contain at least 1 lowercase letter")
 		.regex(
