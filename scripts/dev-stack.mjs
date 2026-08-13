@@ -1,4 +1,4 @@
-import { spawn } from "node:child_process";
+import { spawn, spawnSync } from "node:child_process";
 import { existsSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
@@ -12,6 +12,7 @@ const backendDirectory = path.resolve(
 const frontendDirectory = path.resolve(backendDirectory, "../team5-frontend");
 const npmCommand = process.platform === "win32" ? "npm.cmd" : "npm";
 const services = [];
+const serviceRootIds = new Set();
 let stopping = false;
 
 function run(command, args, options = {}) {
@@ -159,6 +160,9 @@ function startService(label, directory) {
 		env: process.env,
 		stdio: ["ignore", "pipe", "pipe"],
 	});
+	if (child.pid) {
+		serviceRootIds.add(child.pid);
+	}
 
 	prefixOutput(child.stdout, label, process.stdout);
 	prefixOutput(child.stderr, label, process.stderr);
@@ -183,23 +187,69 @@ function stopServices(exitCode = 0) {
 	}
 
 	stopping = true;
-	for (const child of services) {
-		if (!child.pid || child.killed) {
-			continue;
-		}
+	if (serviceRootIds.size > 0) {
+		console.log("[setup] Stopping backend and frontend...");
+	}
+	forceStopServices();
 
-		try {
-			child.kill("SIGTERM");
-		} catch (error) {
-			if (error.code !== "ESRCH") {
-				console.error(
-					`[setup] Could not stop process ${child.pid}: ${error.message}`,
-				);
+	process.exitCode = exitCode;
+}
+
+function forceStopServices() {
+	if (process.platform === "win32") {
+		for (const processId of serviceRootIds) {
+			spawnSync("taskkill", ["/pid", String(processId), "/t", "/f"], {
+				stdio: "ignore",
+			});
+		}
+		return;
+	}
+
+	const processList = spawnSync("ps", ["-axo", "pid=,ppid="], {
+		encoding: "utf8",
+	});
+	if (processList.error) {
+		console.error(
+			`[setup] Could not inspect service processes: ${processList.error.message}`,
+		);
+		return;
+	}
+
+	const processes = processList.stdout
+		.trim()
+		.split("\n")
+		.map((line) => line.trim().split(/\s+/).map(Number));
+	const processIds = new Set(serviceRootIds);
+	let foundDescendant = true;
+	while (foundDescendant) {
+		foundDescendant = false;
+		for (const [processId, parentProcessId] of processes) {
+			if (processIds.has(parentProcessId) && !processIds.has(processId)) {
+				processIds.add(processId);
+				foundDescendant = true;
 			}
 		}
 	}
 
-	process.exitCode = exitCode;
+	if (processIds.size === 0) {
+		return;
+	}
+
+	const result = spawnSync(
+		"/bin/kill",
+		["-KILL", ...[...processIds].reverse().map(String)],
+		{ stdio: "ignore" },
+	);
+	if (result.error) {
+		console.error(
+			`[setup] Could not stop service processes: ${result.error.message}`,
+		);
+	}
+}
+
+function handleShutdownSignal(exitCode) {
+	stopServices(exitCode);
+	process.exit(exitCode);
 }
 
 async function main() {
@@ -248,8 +298,8 @@ async function main() {
 	startService("frontend", frontendDirectory);
 }
 
-process.once("SIGINT", () => stopServices());
-process.once("SIGTERM", () => stopServices());
+process.once("SIGINT", () => handleShutdownSignal(130));
+process.once("SIGTERM", () => handleShutdownSignal(143));
 
 main().catch((error) => {
 	console.error(`[setup] ${error.message}`);
