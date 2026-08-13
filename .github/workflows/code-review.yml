@@ -14,6 +14,11 @@ on:
 
 permissions:
   contents: read
+  pull-requests: write
+
+concurrency:
+  group: code-review-${{ github.repository }}-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: false
 
 jobs:
   local-code-review:
@@ -75,6 +80,79 @@ jobs:
               echo "No Markdown review report was generated. Check the workflow logs."
             } >> "$GITHUB_STEP_SUMMARY"
           fi
+
+      - name: Publish latest review summary on pull request
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require("fs");
+            const marker = "<!-- local-code-review:first-report -->";
+            const { owner, repo } = context.repo;
+            const issue_number = context.issue.number;
+
+            const comments = await github.paginate(
+              github.rest.issues.listComments,
+              { owner, repo, issue_number, per_page: 100 },
+            );
+
+            const existingComment = comments.find((comment) =>
+              comment.body?.includes(marker),
+            );
+
+            const reportName = fs
+              .readdirSync("code_reviews")
+              .find((name) => name.endsWith(".md"));
+
+            if (!reportName) {
+              core.warning("No Markdown review report was generated.");
+              return;
+            }
+
+            const report = fs.readFileSync(`code_reviews/${reportName}`, "utf8");
+            const lines = report.split("\n");
+
+            const extractSection = (title) => {
+              const start = lines.findIndex(
+                (line) => line.startsWith("## ") && line.includes(title),
+              );
+              if (start === -1) return null;
+
+              const separator = lines.findIndex(
+                (line, index) => index > start && line.trim() === "---",
+              );
+              const end = separator === -1 ? lines.length : separator;
+              return lines.slice(start, end).join("\n").trim();
+            };
+
+            const sections = ["Verdict", "Findings", "Change Summary"]
+              .map(extractSection)
+              .filter(Boolean);
+
+            if (sections.length !== 3) {
+              core.warning("The review report did not contain all expected sections.");
+              return;
+            }
+
+            const body = `${marker}\n${sections.join("\n\n---\n\n")}`;
+
+            if (existingComment) {
+              await github.rest.issues.updateComment({
+                owner,
+                repo,
+                comment_id: existingComment.id,
+                body,
+              });
+              core.info("Updated the existing local code review comment.");
+            } else {
+              await github.rest.issues.createComment({
+                owner,
+                repo,
+                issue_number,
+                body,
+              });
+              core.info("Created the local code review comment.");
+            }
 
       - name: Upload review report
         if: always()
