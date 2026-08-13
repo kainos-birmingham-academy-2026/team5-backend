@@ -17,25 +17,13 @@ export class AuthenticationService {
 		// Hash password with argon2
 		const hashedPassword = await hash(data.password);
 
-		// Get role ID from role name (assuming roles are already seeded)
-		const { PrismaClient } = await import("@prisma/client");
-		const prisma = new PrismaClient();
-
-		const role = await prisma.role.findUnique({
-			where: { name: data.role },
-		});
-
-		if (!role) {
-			throw new Error(`Role "${data.role}" does not exist`);
-		}
-
-		// Create user
+		// Create user with default roleId of 1 (applicant)
 		const createdUser = await userDao.create({
 			firstName: data.firstName,
 			lastName: data.lastName,
 			email: data.email,
 			password: hashedPassword,
-			roleId: role.id,
+			roleId: 1,
 		});
 
 		// Map to domain and generate token

@@ -21,7 +21,6 @@ export const RegisterRequestSchema = z.object({
 		.regex(/[A-Z]/, "Password must contain at least 1 uppercase letter")
 		.regex(/[a-z]/, "Password must contain at least 1 lowercase letter")
 		.regex(/[!@#$%^&*]/, "Password must contain at least 1 special character (!@#$%^&*)"),
-	role: z.enum(["applicant", "recruiter", "admin"]).default("applicant"),
 });
 
 export type RegisterRequestDto = z.infer<typeof RegisterRequestSchema>;

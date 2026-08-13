@@ -207,7 +207,6 @@ describe("UserController", () => {
 					lastName: "Doe",
 					email: "jane@example.com",
 					password: "SecurePass@123",
-					role: "applicant",
 				},
 			});
 			const res = createMockRes();
@@ -251,7 +250,6 @@ describe("UserController", () => {
 					lastName: "Doe",
 					email: "jane@example.com",
 					password: "SecurePass@123",
-					role: "applicant",
 				},
 			});
 			const res = createMockRes();
