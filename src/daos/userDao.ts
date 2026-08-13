@@ -15,11 +15,7 @@ export class UserDao {
 		});
 	}
 
-	async create(data: {
-		email: string;
-		password: string;
-		roleId: number;
-	}) {
+	async create(data: { email: string; password: string; roleId: number }) {
 		return prisma.user.create({
 			data,
 		});
