@@ -59,8 +59,8 @@ export class UserController {
 				return;
 			}
 
-		const user = toDomain(prismaUser);
-		res.status(200).json(toResponse(user));
+			const user = toDomain(prismaUser);
+			res.status(200).json(toResponse(user));
 		} catch (error) {
 			const message =
 				error instanceof Error ? error.message : "Failed to retrieve user";
