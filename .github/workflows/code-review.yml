@@ -81,7 +81,7 @@ jobs:
             } >> "$GITHUB_STEP_SUMMARY"
           fi
 
-      - name: Comment first review summary on pull request
+      - name: Publish latest review summary on pull request
         if: github.event_name == 'pull_request'
         uses: actions/github-script@v7
         with:
@@ -96,10 +96,9 @@ jobs:
               { owner, repo, issue_number, per_page: 100 },
             );
 
-            if (comments.some((comment) => comment.body?.includes(marker))) {
-              core.info("The first local code review is already commented.");
-              return;
-            }
+            const existingComment = comments.find((comment) =>
+              comment.body?.includes(marker),
+            );
 
             const reportName = fs
               .readdirSync("code_reviews")
@@ -135,12 +134,25 @@ jobs:
               return;
             }
 
-            await github.rest.issues.createComment({
-              owner,
-              repo,
-              issue_number,
-              body: `${marker}\n${sections.join("\n\n---\n\n")}`,
-            });
+            const body = `${marker}\n${sections.join("\n\n---\n\n")}`;
+
+            if (existingComment) {
+              await github.rest.issues.updateComment({
+                owner,
+                repo,
+                comment_id: existingComment.id,
+                body,
+              });
+              core.info("Updated the existing local code review comment.");
+            } else {
+              await github.rest.issues.createComment({
+                owner,
+                repo,
+                issue_number,
+                body,
+              });
+              core.info("Created the local code review comment.");
+            }
 
       - name: Upload review report
         if: always()
