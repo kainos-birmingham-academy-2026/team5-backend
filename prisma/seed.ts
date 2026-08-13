@@ -42,21 +42,21 @@ async function main() {
 		statusIds.set(statusName, status.statusId);
 	}
 
-	const hashedPassword = await hash("SecurePass123");
 	const applicantRoleId = roleIds.get("applicant");
+	const recruiterRoleId = roleIds.get("recruiter");
 
-	if (!applicantRoleId) {
-		throw new Error('Role "applicant" was not seeded correctly');
+	if (!applicantRoleId || !recruiterRoleId) {
+		throw new Error("Required roles were not seeded correctly");
 	}
 
+	// Seed John Doe (applicant)
+	const johnPassword = await hash("SecurePass@123");
 	await prisma.user.upsert({
 		where: { email: "john@example.com" },
-		update: { password: hashedPassword },
+		update: { password: johnPassword },
 		create: {
-			firstName: "John",
-			lastName: "Doe",
 			email: "john@example.com",
-			password: hashedPassword,
+			password: johnPassword,
 			roleId: applicantRoleId,
 		},
 	});
@@ -107,6 +107,19 @@ async function main() {
 			numberOfOpenPositions: 0,
 		},
 	];
+	// Seed Jane Smith (recruiter)
+	const janePassword = await hash("RecruitPass#456");
+	await prisma.user.upsert({
+		where: { email: "jane@example.com" },
+		update: { password: janePassword },
+		create: {
+			email: "jane@example.com",
+			password: janePassword,
+			roleId: recruiterRoleId,
+		},
+	});
+
+	await prisma.jobRole.deleteMany();
 
 	for (const { capabilityName, bandName, ...jobRole } of jobRoles) {
 		const capabilityId = capabilityIds.get(capabilityName);

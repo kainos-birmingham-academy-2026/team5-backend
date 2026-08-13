@@ -18,8 +18,6 @@ describe("AuthenticationService", () => {
 		it("should return user and token on successful login", async () => {
 			const mockUser = {
 				id: "user-1",
-				firstName: "John",
-				lastName: "Doe",
 				email: "john@example.com",
 				password: "hashed-password",
 				roleId: 1,
@@ -34,8 +32,6 @@ describe("AuthenticationService", () => {
 
 			expect(result.user).toEqual({
 				id: "user-1",
-				firstName: "John",
-				lastName: "Doe",
 				email: "john@example.com",
 				roleId: 1,
 				createdAt: mockUser.createdAt,
@@ -56,8 +52,6 @@ describe("AuthenticationService", () => {
 		it("should throw error if password is incorrect", async () => {
 			const mockUser = {
 				id: "user-1",
-				firstName: "John",
-				lastName: "Doe",
 				email: "john@example.com",
 				password: "hashed-password",
 				roleId: 1,
@@ -78,8 +72,6 @@ describe("AuthenticationService", () => {
 		it("should throw error if user already exists", async () => {
 			const existingUser = {
 				id: "user-1",
-				firstName: "John",
-				lastName: "Doe",
 				email: "john@example.com",
 				password: "hashed-password",
 				roleId: 1,
@@ -91,11 +83,8 @@ describe("AuthenticationService", () => {
 
 			await expect(
 				service.register({
-					firstName: "John",
-					lastName: "Doe",
 					email: "john@example.com",
-					password: "password123",
-					role: "applicant",
+					password: "SecurePass@123",
 				}),
 			).rejects.toThrow("User with this email already exists");
 		});

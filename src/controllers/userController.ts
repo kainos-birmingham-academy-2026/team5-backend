@@ -1,7 +1,7 @@
 import type { Request, Response } from "express";
 import { userDao } from "../daos/userDao";
 import { LoginRequestSchema, RegisterRequestSchema } from "../dtos/userDto";
-import { UserMapper } from "../mappers/userMapper";
+import { toDomain, toResponse } from "../mappers/userMapper";
 import { authenticationService } from "../services/authenticationService";
 
 export class UserController {
@@ -59,8 +59,8 @@ export class UserController {
 				return;
 			}
 
-			const user = UserMapper.toDomain(prismaUser);
-			res.status(200).json(UserMapper.toResponse(user));
+			const user = toDomain(prismaUser);
+			res.status(200).json(toResponse(user));
 		} catch (error) {
 			const message =
 				error instanceof Error ? error.message : "Failed to retrieve user";

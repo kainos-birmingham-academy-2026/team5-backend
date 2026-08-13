@@ -2,7 +2,7 @@ import { hash, verify } from "argon2";
 import jwt from "jsonwebtoken";
 import { userDao } from "../daos/userDao";
 import type { LoginResponseDto, RegisterRequestDto } from "../dtos/userDto";
-import { UserMapper } from "../mappers/userMapper";
+import { toDomain, toResponse } from "../mappers/userMapper";
 
 const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key-change-this";
 
@@ -17,33 +17,19 @@ export class AuthenticationService {
 		// Hash password with argon2
 		const hashedPassword = await hash(data.password);
 
-		// Get role ID from role name (assuming roles are already seeded)
-		const { PrismaClient } = await import("@prisma/client");
-		const prisma = new PrismaClient();
-
-		const role = await prisma.role.findUnique({
-			where: { name: data.role },
-		});
-
-		if (!role) {
-			throw new Error(`Role "${data.role}" does not exist`);
-		}
-
-		// Create user
+		// Create user with default roleId of 1 (applicant)
 		const createdUser = await userDao.create({
-			firstName: data.firstName,
-			lastName: data.lastName,
 			email: data.email,
 			password: hashedPassword,
-			roleId: role.id,
+			roleId: 1,
 		});
 
 		// Map to domain and generate token
-		const user = UserMapper.toDomain(createdUser);
+		const user = toDomain(createdUser);
 		const token = this.generateToken(user.id, user.email, user.roleId);
 
 		return {
-			user: UserMapper.toResponse(user),
+			user: toResponse(user),
 			token,
 		};
 	}
@@ -62,11 +48,11 @@ export class AuthenticationService {
 		}
 
 		// Map to domain and generate token
-		const user = UserMapper.toDomain(prismaUser);
+		const user = toDomain(prismaUser);
 		const token = this.generateToken(user.id, user.email, user.roleId);
 
 		return {
-			user: UserMapper.toResponse(user),
+			user: toResponse(user),
 			token,
 		};
 	}

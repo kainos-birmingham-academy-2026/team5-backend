@@ -12,15 +12,16 @@ export const LoginRequestSchema = z.object({
 export type LoginRequestDto = z.infer<typeof LoginRequestSchema>;
 
 export const RegisterRequestSchema = z.object({
-	firstName: z.string().min(1, "First name is required"),
-	lastName: z.string().min(1, "Last name is required"),
 	email: z.string().email("Invalid email format"),
 	password: z
 		.string()
-		.min(12, "Password must be at least 12 characters")
-		.regex(/[A-Z]/, "Password must contain at least 1 capital letter")
-		.regex(/[0-9]/, "Password must contain at least 1 number"),
-	role: z.enum(["applicant", "recruiter", "admin"]).default("applicant"),
+		.min(8, "Password must be at least 8 characters")
+		.regex(/[A-Z]/, "Password must contain at least 1 uppercase letter")
+		.regex(/[a-z]/, "Password must contain at least 1 lowercase letter")
+		.regex(
+			/[!@#$%^&*?.\-_,;:'"[\]{}()<>+=/\\]/,
+			"Password must contain at least 1 special character (!@#$%^&*?.-_,;:'\"[]{}()<>+=/\\)",
+		),
 });
 
 export type RegisterRequestDto = z.infer<typeof RegisterRequestSchema>;
