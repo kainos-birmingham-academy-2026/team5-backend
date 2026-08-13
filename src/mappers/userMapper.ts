@@ -6,8 +6,6 @@ export class UserMapper {
 	static toDomain(prismaUser: PrismaUser): User {
 		return new User(
 			prismaUser.id,
-			prismaUser.firstName,
-			prismaUser.lastName,
 			prismaUser.email,
 			prismaUser.password,
 			prismaUser.roleId,
@@ -19,8 +17,6 @@ export class UserMapper {
 	static toResponse(user: User): UserResponse {
 		return {
 			id: user.id,
-			firstName: user.firstName,
-			lastName: user.lastName,
 			email: user.email,
 			roleId: user.roleId,
 			createdAt: user.createdAt,
@@ -33,8 +29,6 @@ export class UserMapper {
 	): Omit<PrismaUser, "createdAt" | "updatedAt"> {
 		return {
 			id: user.id,
-			firstName: user.firstName,
-			lastName: user.lastName,
 			email: user.email,
 			password: user.password,
 			roleId: user.roleId,

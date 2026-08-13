@@ -56,8 +56,6 @@ async function main() {
 		where: { email: "john@example.com" },
 		update: { password: johnPassword },
 		create: {
-			firstName: "John",
-			lastName: "Doe",
 			email: "john@example.com",
 			password: johnPassword,
 			roleId: applicantRoleId,
@@ -116,8 +114,6 @@ async function main() {
 		where: { email: "jane@example.com" },
 		update: { password: janePassword },
 		create: {
-			firstName: "Jane",
-			lastName: "Smith",
 			email: "jane@example.com",
 			password: janePassword,
 			roleId: recruiterRoleId,

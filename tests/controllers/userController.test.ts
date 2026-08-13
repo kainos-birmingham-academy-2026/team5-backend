@@ -34,8 +34,6 @@ describe("UserController", () => {
 			const mockLoginResponse = {
 				user: {
 					id: "user-1",
-					firstName: "John",
-					lastName: "Doe",
 					email: "john@example.com",
 					roleId: 1,
 					createdAt: new Date(),
@@ -146,8 +144,6 @@ describe("UserController", () => {
 			const mockRegisterResponse = {
 				user: {
 					id: "user-1",
-					firstName: "Jane",
-					lastName: "Doe",
 					email: "jane@example.com",
 					roleId: 1,
 					createdAt: new Date(),
@@ -162,11 +158,8 @@ describe("UserController", () => {
 
 			const req = createMockReq({
 				body: {
-					firstName: "Jane",
-					lastName: "Doe",
 					email: "jane@example.com",
 					password: "SecurePass@123",
-					role: "applicant",
 				},
 			});
 			const res = createMockRes();
@@ -180,8 +173,6 @@ describe("UserController", () => {
 		it("should return 400 on validation error", async () => {
 			const req = createMockReq({
 				body: {
-					firstName: "Jane",
-					lastName: "Doe",
 					email: "invalid-email",
 					password: "Short@1",
 				},
@@ -203,8 +194,6 @@ describe("UserController", () => {
 
 			const req = createMockReq({
 				body: {
-					firstName: "Jane",
-					lastName: "Doe",
 					email: "jane@example.com",
 					password: "SecurePass@123",
 				},
@@ -226,11 +215,8 @@ describe("UserController", () => {
 
 			const req = createMockReq({
 				body: {
-					firstName: "Jane",
-					lastName: "Doe",
 					email: "jane@example.com",
 					password: "SecurePass123",
-					role: "applicant",
 				},
 			});
 			const res = createMockRes();
@@ -246,8 +232,6 @@ describe("UserController", () => {
 
 			const req = createMockReq({
 				body: {
-					firstName: "Jane",
-					lastName: "Doe",
 					email: "jane@example.com",
 					password: "SecurePass@123",
 				},
@@ -269,8 +253,6 @@ describe("UserController", () => {
 		it("should return 200 with user data on successful retrieval", async () => {
 			const mockUser = {
 				id: "user-1",
-				firstName: "John",
-				lastName: "Doe",
 				email: "john@example.com",
 				password: "hashed-password",
 				roleId: 1,
@@ -292,7 +274,7 @@ describe("UserController", () => {
 			expect(res.json).toHaveBeenCalled();
 			const call = (res.json as any).mock.calls[0][0];
 			expect(call).toHaveProperty("id");
-			expect(call).toHaveProperty("firstName", "John");
+			expect(call).toHaveProperty("email", "john@example.com");
 		});
 
 		it("should return 404 when user is not found", async () => {

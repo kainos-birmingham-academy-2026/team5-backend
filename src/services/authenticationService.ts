@@ -19,8 +19,6 @@ export class AuthenticationService {
 
 		// Create user with default roleId of 1 (applicant)
 		const createdUser = await userDao.create({
-			firstName: data.firstName,
-			lastName: data.lastName,
 			email: data.email,
 			password: hashedPassword,
 			roleId: 1,
