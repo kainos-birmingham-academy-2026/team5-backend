@@ -216,7 +216,6 @@ tests/
 4. If invalid: returns 401 Unauthorized
 
 ## Security Considerations
-
 - **Password Storage**: All passwords are hashed with bcrypt (10 salt rounds) before storage
 - **Token Security**: 
   - Tokens use HS256 algorithm

@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 
-FROM node:22-bookworm-slim AS base
+FROM node:24-alpine AS builder
 WORKDIR /app
 
 # Prisma's native query engine requires OpenSSL at build time and runtime.
