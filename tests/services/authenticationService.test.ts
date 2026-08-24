@@ -1,4 +1,5 @@
 import * as argon2 from "argon2";
+import jwt from "jsonwebtoken";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { userDao } from "../../src/daos/userDao";
 import { AuthenticationService } from "../../src/services/authenticationService";
@@ -69,6 +70,41 @@ describe("AuthenticationService", () => {
 	});
 
 	describe("register", () => {
+		it("should hash the password, create the user, and return a token", async () => {
+			const createdAt = new Date();
+			const updatedAt = new Date();
+			vi.mocked(userDao.findByEmail).mockResolvedValue(null);
+			vi.mocked(argon2.hash).mockResolvedValue("hashed-password");
+			vi.mocked(userDao.create).mockResolvedValue({
+				id: "user-1",
+				email: "john@example.com",
+				password: "hashed-password",
+				roleId: 1,
+				createdAt,
+				updatedAt,
+			});
+
+			const result = await service.register({
+				email: "john@example.com",
+				password: "SecurePass@123",
+			});
+
+			expect(argon2.hash).toHaveBeenCalledWith("SecurePass@123");
+			expect(userDao.create).toHaveBeenCalledWith({
+				email: "john@example.com",
+				password: "hashed-password",
+				roleId: 1,
+			});
+			expect(result.user).toEqual({
+				id: "user-1",
+				email: "john@example.com",
+				roleId: 1,
+				createdAt,
+				updatedAt,
+			});
+			expect(result.token).toMatch(/^eyJ/);
+		});
+
 		it("should throw error if user already exists", async () => {
 			const existingUser = {
 				id: "user-1",
@@ -92,7 +128,10 @@ describe("AuthenticationService", () => {
 
 	describe("verifyToken", () => {
 		it("should verify and decode valid token", () => {
-			const token = service["generateToken"]("user-1", "john@example.com", 1);
+			const token = jwt.sign(
+				{ userId: "user-1", email: "john@example.com", roleId: 1 },
+				process.env.JWT_SECRET || "your-secret-key-change-this",
+			);
 			const decoded = service.verifyToken(token);
 
 			expect(decoded.userId).toBe("user-1");
