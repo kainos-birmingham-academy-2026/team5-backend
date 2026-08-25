@@ -21,7 +21,6 @@ jobs:
           node-version: "20"
           cache: npm
       - run: npm ci
-      - run: npx prisma generate
       - name: Build and tag image
         run: docker build -t team5-backend:${{ github.sha }} -t team5-backend:latest .
       - name: Confirm image tags
