@@ -1,0 +1,35 @@
+# Dependencies and build output are produced inside the image.
+node_modules
+dist
+coverage
+
+# Secrets must never enter the build context.
+.env
+.env.*
+!.env.example
+
+# Source control and CI metadata.
+.git
+.gitignore
+.github
+.vscode
+
+# Local artefacts not needed by the build.
+logs
+code_reviews
+docs
+scripts
+tests
+src/generated/prisma
+*.log
+*.md
+!README.md
+
+# OS and editor noise.
+.DS_Store
+Thumbs.db
+
+# Docker files themselves are not needed inside the image.
+Dockerfile
+.dockerignore
+docker-compose*.yml
