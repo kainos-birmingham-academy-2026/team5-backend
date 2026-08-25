@@ -28,9 +28,13 @@ COPY prisma.config.ts tsconfig.json ./
 COPY src ./src
 
 # Client generation reads DATABASE_URL but does not connect to the database.
-# Keep the TLS bypass local to this build step rather than the runtime image.
-RUN NODE_TLS_REJECT_UNAUTHORIZED=0 \
-	PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING=1 \
+# Local builds behind a TLS-intercepting corporate proxy can opt out of engine
+# download verification with --build-arg INSECURE_TLS=1. Remote/CI builds use
+# the default and keep certificate and checksum verification enabled.
+ARG INSECURE_TLS=0
+RUN if [ "$INSECURE_TLS" = "1" ]; then \
+		export NODE_TLS_REJECT_UNAUTHORIZED=0 PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING=1; \
+	fi; \
 	DATABASE_URL="postgresql://postgres:postgres@localhost:5432/postgres" \
 	npx prisma generate
 RUN npm run build
