@@ -25,3 +25,21 @@ jobs:
         run: docker build -t team5-backend:${{ github.sha }} -t team5-backend:latest .
       - name: Confirm image tags
         run: docker images team5-backend --format '{{.Repository}}:{{.Tag}} {{.ID}} {{.Size}}'
+
+      - name: Log in to ACR
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ secrets.ACR_LOGIN_SERVER }}
+          username: ${{ secrets.ACR_CLIENT_ID }}
+          password: ${{ secrets.ACR_CLIENT_SECRET }}
+
+      - name: Tag and push to ACR
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        run: |
+          IMAGE="${{ secrets.ACR_LOGIN_SERVER }}/team5-backend"
+          docker tag team5-backend:${{ github.sha }} "$IMAGE:${{ github.sha }}"
+          docker tag team5-backend:${{ github.sha }} "$IMAGE:latest"
+          docker push "$IMAGE:${{ github.sha }}"
+          docker push "$IMAGE:latest"
+          docker images "$IMAGE" --format '{{.Repository}}:{{.Tag}} {{.ID}} {{.Size}}'
