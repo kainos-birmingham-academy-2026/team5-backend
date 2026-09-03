@@ -9,6 +9,7 @@ describe("JobRoleFilterQuerySchema", () => {
 			capability: [],
 			band: [],
 			status: [],
+			sortOrder: "asc",
 		});
 	});
 
@@ -32,7 +33,36 @@ describe("JobRoleFilterQuerySchema", () => {
 			band: ["Band 2"],
 			status: ["Open", "Closed"],
 			closingDate: "2027-12-31",
+			sortOrder: "asc",
 		});
+	});
+
+	it("accepts every sortable column with an explicit order", () => {
+		expect(
+			JobRoleFilterQuerySchema.parse({
+				sortBy: "capability",
+				sortOrder: "desc",
+			}),
+		).toMatchObject({ sortBy: "capability", sortOrder: "desc" });
+	});
+
+	it("treats an empty sortBy as no ordering", () => {
+		expect(
+			JobRoleFilterQuerySchema.parse({ sortBy: "", sortOrder: "" }),
+		).toMatchObject({ sortBy: undefined, sortOrder: "asc" });
+	});
+
+	it.each(["salary", "jobRoleId"])("rejects sortBy %s", (sortBy) => {
+		expect(JobRoleFilterQuerySchema.safeParse({ sortBy }).success).toBe(false);
+	});
+
+	it("rejects an unsupported sort order", () => {
+		expect(
+			JobRoleFilterQuerySchema.safeParse({
+				sortBy: "roleName",
+				sortOrder: "sideways",
+			}).success,
+		).toBe(false);
 	});
 
 	it("rejects a non-ISO closing date", () => {

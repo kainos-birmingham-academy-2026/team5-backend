@@ -4,6 +4,12 @@ import type {
 	JobRoleFilterOptionsDto,
 	JobRoleFilters,
 } from "../dtos/jobRoleFilterDto";
+import {
+	DEFAULT_JOB_ROLE_SORT,
+	type JobRoleSort,
+	type JobRoleSortField,
+	type JobRoleSortOrder,
+} from "../dtos/jobRoleSortDto";
 import { JobRole } from "../models/jobRole";
 import prisma from "../prismaClient";
 
@@ -12,6 +18,18 @@ const jobRoleRelationsInclude = {
 	band: true,
 	statusRef: true,
 } as const;
+
+const sortFieldOrderBy: Record<
+	JobRoleSortField,
+	(order: JobRoleSortOrder) => Prisma.JobRoleOrderByWithRelationInput
+> = {
+	roleName: (order) => ({ roleName: order }),
+	location: (order) => ({ location: order }),
+	capability: (order) => ({ capability: { capabilityName: order } }),
+	band: (order) => ({ band: { bandName: order } }),
+	closingDate: (order) => ({ closingDate: order }),
+	status: (order) => ({ status: order }),
+};
 
 type JobRoleWithRelations = Prisma.JobRoleGetPayload<{
 	include: typeof jobRoleRelationsInclude;
@@ -79,10 +97,18 @@ export class JobRoleDao {
 		);
 	}
 
+	private toOrderBy(sort: JobRoleSort): Prisma.JobRoleOrderByWithRelationInput {
+		// No requested column falls back to insertion order so pagination stays stable.
+		return sort.sortBy
+			? sortFieldOrderBy[sort.sortBy](sort.sortOrder)
+			: { jobRoleId: "asc" };
+	}
+
 	async findAll(
 		page: number,
 		pageSize: number,
 		filters: JobRoleFilters,
+		sort: JobRoleSort = DEFAULT_JOB_ROLE_SORT,
 	): Promise<{ jobRoles: JobRole[]; totalItems: number }> {
 		const skip = (page - 1) * pageSize;
 		const where: Prisma.JobRoleWhereInput = {
@@ -108,6 +134,7 @@ export class JobRoleDao {
 			prisma.jobRole.findMany({
 				include: this.relationsInclude,
 				where,
+				orderBy: this.toOrderBy(sort),
 				skip,
 				take: pageSize,
 			}),

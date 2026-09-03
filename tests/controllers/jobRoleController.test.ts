@@ -63,11 +63,16 @@ describe("JobRoleController", () => {
 
 		await controller.getAllJobRoles(req, res);
 
-		expect(serviceMock.findAll).toHaveBeenCalledWith(1, 10, {
-			capability: [],
-			band: [],
-			status: [],
-		});
+		expect(serviceMock.findAll).toHaveBeenCalledWith(
+			1,
+			10,
+			{
+				capability: [],
+				band: [],
+				status: [],
+			},
+			{ sortBy: undefined, sortOrder: "asc" },
+		);
 		expect(res.status).toHaveBeenCalledWith(200);
 		expect(res.json).toHaveBeenCalledWith(result);
 	});
@@ -86,11 +91,16 @@ describe("JobRoleController", () => {
 
 		await controller.getAllJobRoles(req, res);
 
-		expect(serviceMock.findAll).toHaveBeenCalledWith(2, 100, {
-			capability: [],
-			band: [],
-			status: [],
-		});
+		expect(serviceMock.findAll).toHaveBeenCalledWith(
+			2,
+			100,
+			{
+				capability: [],
+				band: [],
+				status: [],
+			},
+			{ sortBy: undefined, sortOrder: "asc" },
+		);
 		expect(res.status).toHaveBeenCalledWith(200);
 		expect(res.json).toHaveBeenCalledWith(result);
 	});
@@ -146,15 +156,60 @@ describe("JobRoleController", () => {
 
 		await controller.getAllJobRoles(req, res);
 
-		expect(serviceMock.findAll).toHaveBeenCalledWith(1, 10, {
-			roleName: "engineer",
-			location: "Belfast",
-			capability: ["Engineering", "Data"],
-			band: ["Band 2"],
-			status: ["Open"],
-			closingDate: "2027-12-31",
-		});
+		expect(serviceMock.findAll).toHaveBeenCalledWith(
+			1,
+			10,
+			{
+				roleName: "engineer",
+				location: "Belfast",
+				capability: ["Engineering", "Data"],
+				band: ["Band 2"],
+				status: ["Open"],
+				closingDate: "2027-12-31",
+			},
+			{ sortBy: undefined, sortOrder: "asc" },
+		);
 	});
+
+	it("getAllJobRoles passes validated sorting to the service", async () => {
+		const req = createMockReq({
+			query: { sortBy: "capability", sortOrder: "desc" },
+		});
+		const res = createMockRes();
+		vi.mocked(serviceMock.findAll).mockResolvedValue({
+			items: [],
+			page: 1,
+			pageSize: 10,
+			totalItems: 0,
+			totalPages: 0,
+		});
+
+		await controller.getAllJobRoles(req, res);
+
+		expect(serviceMock.findAll).toHaveBeenCalledWith(
+			1,
+			10,
+			expect.anything(),
+			{ sortBy: "capability", sortOrder: "desc" },
+		);
+		expect(res.status).toHaveBeenCalledWith(200);
+	});
+
+	it.each(["unknownColumn", "jobRoleId"])(
+		"getAllJobRoles rejects unsupported sortBy %s",
+		async (sortBy) => {
+			const req = createMockReq({ query: { sortBy } });
+			const res = createMockRes();
+
+			await controller.getAllJobRoles(req, res);
+
+			expect(serviceMock.findAll).not.toHaveBeenCalled();
+			expect(res.status).toHaveBeenCalledWith(400);
+			expect(res.json).toHaveBeenCalledWith({
+				error: "Invalid query parameters",
+			});
+		},
+	);
 
 	it("getJobRoleById returns 400 for invalid id", async () => {
 		const req = createMockReq({ params: { id: "abc" } as Request["params"] });

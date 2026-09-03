@@ -103,11 +103,12 @@ export class JobRoleController {
 			return;
 		}
 
-		const { page, pageSize, ...filters } = query.data;
+		const { page, pageSize, sortBy, sortOrder, ...filters } = query.data;
 		const paginatedJobRoles = await this.jobRoleService.findAll(
 			page,
 			pageSize,
 			filters,
+			{ sortBy, sortOrder },
 		);
 		res.status(200).json(paginatedJobRoles);
 	}

@@ -9,6 +9,10 @@ import type {
 	JobRoleFilters,
 } from "../dtos/jobRoleFilterDto";
 import type { PaginatedJobRolesDto } from "../dtos/paginationDto";
+import {
+	DEFAULT_JOB_ROLE_SORT,
+	type JobRoleSort,
+} from "../dtos/jobRoleSortDto";
 import { JobRoleMapper } from "../mappers/jobRoleMapper";
 
 export class JobRoleService {
@@ -22,11 +26,13 @@ export class JobRoleService {
 			band: [],
 			status: [],
 		},
+		sort: JobRoleSort = DEFAULT_JOB_ROLE_SORT,
 	): Promise<PaginatedJobRolesDto> {
 		const { jobRoles, totalItems } = await this.jobRoleDao.findAll(
 			page,
 			pageSize,
 			filters,
+			sort,
 		);
 
 		return {

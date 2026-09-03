@@ -57,11 +57,16 @@ describe("JobRoleService", () => {
 
 		const result = await service.findAll(2, 5);
 
-		expect(daoMock.findAll).toHaveBeenCalledWith(2, 5, {
-			capability: [],
-			band: [],
-			status: [],
-		});
+		expect(daoMock.findAll).toHaveBeenCalledWith(
+			2,
+			5,
+			{
+				capability: [],
+				band: [],
+				status: [],
+			},
+			{ sortOrder: "asc" },
+		);
 		expect(result).toEqual({
 			items: [
 				{
@@ -98,11 +103,16 @@ describe("JobRoleService", () => {
 
 		const result = await service.findAll(1, 10);
 
-		expect(daoMock.findAll).toHaveBeenCalledWith(1, 10, {
-			capability: [],
-			band: [],
-			status: [],
-		});
+		expect(daoMock.findAll).toHaveBeenCalledWith(
+			1,
+			10,
+			{
+				capability: [],
+				band: [],
+				status: [],
+			},
+			{ sortOrder: "asc" },
+		);
 		expect(result).toEqual({
 			items: [],
 			page: 1,

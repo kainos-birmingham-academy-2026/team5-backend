@@ -89,6 +89,7 @@ describe("JobRoleDao", () => {
 		expect(prismaMock.jobRole.findMany).toHaveBeenCalledWith({
 			include: { capability: true, band: true, statusRef: true },
 			where,
+			orderBy: { jobRoleId: "asc" },
 			skip: 10,
 			take: 5,
 		});
@@ -139,10 +140,68 @@ describe("JobRoleDao", () => {
 				status: undefined,
 				closingDate: undefined,
 			},
+			orderBy: { jobRoleId: "asc" },
 			skip: 0,
 			take: 10,
 		});
 		expect(result).toEqual({ jobRoles: [], totalItems: 0 });
+	});
+
+	it.each([
+		["roleName", { roleName: "asc" }],
+		["location", { location: "asc" }],
+		["capability", { capability: { capabilityName: "asc" } }],
+		["band", { band: { bandName: "asc" } }],
+		["closingDate", { closingDate: "asc" }],
+		["status", { status: "asc" }],
+	] as const)("findAll sorts ascending by %s", async (sortBy, orderBy) => {
+		prismaMock.jobRole.findMany.mockResolvedValue([]);
+		prismaMock.jobRole.count.mockResolvedValue(0);
+
+		await new JobRoleDao().findAll(
+			1,
+			10,
+			{ capability: [], band: [], status: [] },
+			{ sortBy, sortOrder: "asc" },
+		);
+
+		expect(prismaMock.jobRole.findMany).toHaveBeenCalledWith(
+			expect.objectContaining({ orderBy }),
+		);
+	});
+
+	it("findAll sorts descending when requested", async () => {
+		prismaMock.jobRole.findMany.mockResolvedValue([]);
+		prismaMock.jobRole.count.mockResolvedValue(0);
+
+		await new JobRoleDao().findAll(
+			1,
+			10,
+			{ capability: [], band: [], status: [] },
+			{ sortBy: "capability", sortOrder: "desc" },
+		);
+
+		expect(prismaMock.jobRole.findMany).toHaveBeenCalledWith(
+			expect.objectContaining({
+				orderBy: { capability: { capabilityName: "desc" } },
+			}),
+		);
+	});
+
+	it("findAll falls back to id ordering when no column is requested", async () => {
+		prismaMock.jobRole.findMany.mockResolvedValue([]);
+		prismaMock.jobRole.count.mockResolvedValue(0);
+
+		await new JobRoleDao().findAll(
+			1,
+			10,
+			{ capability: [], band: [], status: [] },
+			{ sortOrder: "desc" },
+		);
+
+		expect(prismaMock.jobRole.findMany).toHaveBeenCalledWith(
+			expect.objectContaining({ orderBy: { jobRoleId: "asc" } }),
+		);
 	});
 
 	it("getFilterOptions returns sorted values from filterable fields", async () => {

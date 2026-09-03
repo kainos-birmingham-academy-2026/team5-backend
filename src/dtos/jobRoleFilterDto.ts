@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { JobRoleSortQuerySchema } from "./jobRoleSortDto";
 import { PaginationQuerySchema } from "./paginationDto";
 
 const optionalTextFilter = z.preprocess(
@@ -25,11 +26,14 @@ export const JobRoleFilterQuerySchema = PaginationQuerySchema.extend({
 			.regex(/^\d{4}-\d{2}-\d{2}$/)
 			.optional(),
 	),
-});
+}).extend(JobRoleSortQuerySchema.shape);
 
 export type JobRoleFilterQueryDto = z.infer<typeof JobRoleFilterQuerySchema>;
 
-export type JobRoleFilters = Omit<JobRoleFilterQueryDto, "page" | "pageSize">;
+export type JobRoleFilters = Omit<
+	JobRoleFilterQueryDto,
+	"page" | "pageSize" | "sortBy" | "sortOrder"
+>;
 
 export type JobRoleFilterOptionsDto = {
 	capabilities: string[];

@@ -48,11 +48,45 @@ describe("Job Role Routes", () => {
 
 		expect(response.status).toBe(200);
 		expect(response.body).toEqual(result);
-		expect(serviceMock.findAll).toHaveBeenCalledWith(1, 10, {
-			capability: [],
-			band: [],
-			status: [],
+		expect(serviceMock.findAll).toHaveBeenCalledWith(
+			1,
+			10,
+			{
+				capability: [],
+				band: [],
+				status: [],
+			},
+			{ sortBy: undefined, sortOrder: "asc" },
+		);
+	});
+
+	it("GET /job-roles forwards sorting query parameters", async () => {
+		serviceMock.findAll.mockResolvedValue({
+			items: [],
+			page: 1,
+			pageSize: 10,
+			totalItems: 0,
+			totalPages: 0,
 		});
+
+		const response = await request(app).get(
+			"/job-roles?sortBy=roleName&sortOrder=desc",
+		);
+
+		expect(response.status).toBe(200);
+		expect(serviceMock.findAll).toHaveBeenCalledWith(
+			1,
+			10,
+			expect.anything(),
+			{ sortBy: "roleName", sortOrder: "desc" },
+		);
+	});
+
+	it("GET /job-roles rejects an unsupported sortBy column", async () => {
+		const response = await request(app).get("/job-roles?sortBy=salary");
+
+		expect(response.status).toBe(400);
+		expect(serviceMock.findAll).not.toHaveBeenCalled();
 	});
 
 	it("GET /job-roles rejects pageSize above 100", async () => {
