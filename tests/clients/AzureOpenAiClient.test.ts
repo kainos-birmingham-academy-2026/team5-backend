@@ -2,27 +2,30 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import {
 	AiAssistantConfigurationError,
 	AiAssistantProviderError,
-	ClaudeClient,
-	type ClaudeMessagesClient,
-} from "../../src/clients/ClaudeClient";
+	AzureOpenAiClient,
+	type AzureOpenAiResponsesClient,
+} from "../../src/clients/AzureOpenAiClient";
 
-describe("ClaudeClient", () => {
-	const originalApiKey = process.env.ANTHROPIC_API_KEY;
+describe("AzureOpenAiClient", () => {
+	const originalDeployment = process.env.AZURE_OPENAI_DEPLOYMENT;
 
 	afterEach(() => {
 		vi.resetAllMocks();
-		if (originalApiKey === undefined) {
-			delete process.env.ANTHROPIC_API_KEY;
+		if (originalDeployment === undefined) {
+			delete process.env.AZURE_OPENAI_DEPLOYMENT;
 		} else {
-			process.env.ANTHROPIC_API_KEY = originalApiKey;
+			process.env.AZURE_OPENAI_DEPLOYMENT = originalDeployment;
 		}
 	});
 
 	it("sends only the question and approved job role context without tools", async () => {
+		process.env.AZURE_OPENAI_DEPLOYMENT = "gpt-4o";
 		const create = vi.fn().mockResolvedValue({
-			content: [{ type: "text", text: "The Platform Engineer role matches." }],
+			output_text: "The Platform Engineer role matches.",
 		});
-		const client = new ClaudeClient({ create } as ClaudeMessagesClient);
+		const client = new AzureOpenAiClient({
+			create,
+		} as AzureOpenAiResponsesClient);
 		const jobRoles = [
 			{
 				jobRoleId: 11,
@@ -47,35 +50,36 @@ describe("ClaudeClient", () => {
 		expect(create).toHaveBeenCalledOnce();
 		const request = create.mock.calls[0][0];
 		expect(request).toMatchObject({
-			model: "claude-haiku-4-5-20251001",
-			max_tokens: 500,
-			temperature: 0.2,
-			messages: [{ role: "user" }],
+			model: "gpt-4o",
+			max_output_tokens: 500,
+			reasoning: { effort: "minimal" },
+			input: [{ role: "system" }, { role: "user" }],
 		});
+		expect(request).not.toHaveProperty("temperature");
 		expect(request).not.toHaveProperty("tools");
-		expect(request.messages).toHaveLength(1);
-		expect(JSON.parse(request.messages[0].content as string)).toEqual({
+		expect(request.input).toHaveLength(2);
+		expect(JSON.parse(request.input[1].content)).toEqual({
 			question: "Which engineering jobs are open?",
 			jobRoles,
 		});
 	});
 
-	it("rejects requests when the server API key is not configured", async () => {
-		delete process.env.ANTHROPIC_API_KEY;
+	it("rejects requests when the deployment is not configured", async () => {
+		delete process.env.AZURE_OPENAI_DEPLOYMENT;
 
 		await expect(
-			new ClaudeClient().answerQuestion("What is open?", []),
+			new AzureOpenAiClient().answerQuestion("What is open?", []),
 		).rejects.toBeInstanceOf(AiAssistantConfigurationError);
 	});
 
 	it("rejects a response that contains no text", async () => {
-		const create = vi.fn().mockResolvedValue({ content: [] });
+		process.env.AZURE_OPENAI_DEPLOYMENT = "gpt-4o";
+		const create = vi.fn().mockResolvedValue({ output_text: "" });
 
 		await expect(
-			new ClaudeClient({ create } as ClaudeMessagesClient).answerQuestion(
-				"What is open?",
-				[],
-			),
+			new AzureOpenAiClient({
+				create,
+			} as AzureOpenAiResponsesClient).answerQuestion("What is open?", []),
 		).rejects.toBeInstanceOf(AiAssistantProviderError);
 	});
 });

@@ -1,10 +1,10 @@
 import { describe, expect, it, vi } from "vitest";
-import type { ClaudeClient } from "../../src/clients/ClaudeClient";
+import type { AzureOpenAiClient } from "../../src/clients/AzureOpenAiClient";
 import type { JobRoleDao } from "../../src/daos/jobRoleDao";
 import { AiAssistantService } from "../../src/services/AiAssistantService";
 
 describe("AiAssistantService", () => {
-	it("loads every approved job role and returns Claude's answer", async () => {
+	it("loads every approved job role and returns the AI answer", async () => {
 		const jobRoles = [
 			{
 				jobRoleId: 11,
@@ -22,15 +22,15 @@ describe("AiAssistantService", () => {
 		const jobRoleDao = {
 			findAllForAssistant: vi.fn().mockResolvedValue(jobRoles),
 		} as unknown as JobRoleDao;
-		const claudeClient = {
+		const aiClient = {
 			answerQuestion: vi.fn().mockResolvedValue("One matching role is open."),
-		} as unknown as ClaudeClient;
-		const service = new AiAssistantService(jobRoleDao, claudeClient);
+		} as unknown as AzureOpenAiClient;
+		const service = new AiAssistantService(jobRoleDao, aiClient);
 
 		const response = await service.ask("Show me open engineering jobs");
 
 		expect(jobRoleDao.findAllForAssistant).toHaveBeenCalledOnce();
-		expect(claudeClient.answerQuestion).toHaveBeenCalledWith(
+		expect(aiClient.answerQuestion).toHaveBeenCalledWith(
 			"Show me open engineering jobs",
 			jobRoles,
 		);

@@ -2,8 +2,9 @@ import type { Request, Response } from "express";
 import {
 	AiAssistantConfigurationError,
 	AiAssistantProviderError,
-} from "../clients/ClaudeClient";
+} from "../clients/AzureOpenAiClient";
 import { AskAiAssistantSchema } from "../dtos/aiAssistantDto";
+import Logger from "../lib/logger";
 import type { AiAssistantService } from "../services/AiAssistantService";
 
 export class AiAssistantController {
@@ -29,12 +30,16 @@ export class AiAssistantController {
 			}
 
 			if (error instanceof AiAssistantProviderError) {
+				Logger.error(`Azure OpenAI request failed: ${error.message}`);
 				res
 					.status(502)
 					.json({ error: "AI assistant is temporarily unavailable" });
 				return;
 			}
 
+			Logger.error(
+				`Azure OpenAI request failed: ${error instanceof Error ? error.message : "Unknown error"}`,
+			);
 			res
 				.status(502)
 				.json({ error: "AI assistant is temporarily unavailable" });

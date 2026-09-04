@@ -150,15 +150,16 @@ Response:
 }
 ```
 
-Set `ANTHROPIC_API_KEY` in `.env` before using this endpoint. The key stays on
-the backend. Requests use the pinned Claude Haiku 4.5 model, include no tools or
-conversation history, and are limited to 10 requests per minute per client.
-The database query and mapper explicitly allowlist the job-role fields sent to
-Anthropic. Questions are limited to 1,000 characters and responses to 500
-tokens.
+Set `AZURE_OPENAI_ENDPOINT`, `AZURE_OPENAI_API_KEY`, and
+`AZURE_OPENAI_DEPLOYMENT` in `.env` before using this endpoint. The endpoint may
+be the Foundry project endpoint or the OpenAI-compatible `/openai/v1` endpoint.
+The key stays on the backend. Requests include no tools or conversation history
+and are limited to 10 requests per minute per client. The database query and
+mapper explicitly allowlist the job-role fields sent to Azure OpenAI. Questions
+are limited to 1,000 characters and responses to 500 tokens.
 
-Job-role text is transmitted to Anthropic to generate each answer. Do not put
-secrets or personal data in those fields. Confirm that your Anthropic account's
+Job-role text is transmitted to Azure OpenAI to generate each answer. Do not put
+secrets or personal data in those fields. Confirm that your Azure resource's
 retention settings meet your organisation's requirements before production use.
 
 ## Authentication System

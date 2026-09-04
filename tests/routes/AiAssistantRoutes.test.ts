@@ -1,6 +1,6 @@
 import request from "supertest";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { AiAssistantConfigurationError } from "../../src/clients/ClaudeClient";
+import { AiAssistantConfigurationError } from "../../src/clients/AzureOpenAiClient";
 
 const serviceMock = vi.hoisted(() => ({
 	ask: vi.fn(),
@@ -54,7 +54,9 @@ describe("AI Assistant Routes", () => {
 
 	it("does not expose missing API key details", async () => {
 		serviceMock.ask.mockRejectedValue(
-			new AiAssistantConfigurationError("ANTHROPIC_API_KEY is not configured"),
+			new AiAssistantConfigurationError(
+				"AZURE_OPENAI_API_KEY is not configured",
+			),
 		);
 
 		const response = await request(app)
@@ -63,6 +65,6 @@ describe("AI Assistant Routes", () => {
 
 		expect(response.status).toBe(503);
 		expect(response.body).toEqual({ error: "AI assistant is not configured" });
-		expect(response.text).not.toContain("ANTHROPIC_API_KEY");
+		expect(response.text).not.toContain("AZURE_OPENAI_API_KEY");
 	});
 });
