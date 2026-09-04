@@ -18,7 +18,10 @@ app.use(
 		res: express.Response,
 		_next: express.NextFunction,
 	) => {
-		if (error instanceof multer.MulterError && error.code === "LIMIT_FILE_SIZE") {
+		if (
+			error instanceof multer.MulterError &&
+			error.code === "LIMIT_FILE_SIZE"
+		) {
 			res.status(400).json({ error: "CV must not exceed 5 MB" });
 			return;
 		}

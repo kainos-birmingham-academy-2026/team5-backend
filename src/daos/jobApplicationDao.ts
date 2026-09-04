@@ -31,8 +31,9 @@ export class JobApplicationDao {
 	async create(
 		applicationData: CreateJobApplicationRequestDto,
 	): Promise<JobApplication> {
+		const cvData = new Uint8Array(applicationData.cvData);
 		const application = await prisma.jobApplication.create({
-			data: applicationData,
+			data: { ...applicationData, cvData },
 		});
 
 		return this.toModel(application);

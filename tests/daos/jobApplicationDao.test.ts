@@ -46,7 +46,10 @@ describe("JobApplicationDao", () => {
 		const result = await new JobApplicationDao().create(applicationData);
 
 		expect(prismaMock.jobApplication.create).toHaveBeenCalledWith({
-			data: applicationData,
+			data: {
+				...applicationData,
+				cvData: new Uint8Array(applicationData.cvData),
+			},
 		});
 		expect(result).toEqual(
 			new JobApplication(

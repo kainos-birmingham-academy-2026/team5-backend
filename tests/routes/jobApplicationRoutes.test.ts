@@ -17,6 +17,10 @@ describe("Job Application Routes", () => {
 		{ userId: "applicant-1", email: "applicant@example.com", roleId: 1 },
 		process.env.JWT_SECRET || "your-secret-key-change-this",
 	);
+	const recruiterToken = jwt.sign(
+		{ userId: "recruiter-1", email: "recruiter@example.com", roleId: 2 },
+		process.env.JWT_SECRET || "your-secret-key-change-this",
+	);
 
 	beforeEach(() => {
 		vi.resetAllMocks();
@@ -66,6 +70,20 @@ describe("Job Application Routes", () => {
 		});
 	});
 
+	it("rejects a non-applicant user", async () => {
+		const response = await request(app)
+			.post("/job-roles/2/applications")
+			.set("Authorization", `Bearer ${recruiterToken}`)
+			.attach("cv", Buffer.from("cv-content"), {
+				filename: "cv.pdf",
+				contentType: "application/pdf",
+			});
+
+		expect(response.status).toBe(403);
+		expect(response.body).toEqual({ error: "Applicant access is required" });
+		expect(serviceMock.apply).not.toHaveBeenCalled();
+	});
+
 	it("rejects a request without a CV", async () => {
 		const response = await request(app)
 			.post("/job-roles/2/applications")
@@ -88,5 +106,38 @@ describe("Job Application Routes", () => {
 		expect(response.body).toEqual({
 			error: "CV must be a PDF, DOC, or DOCX file",
 		});
+	});
+
+	it("rejects a CV larger than 5 MB", async () => {
+		const response = await request(app)
+			.post("/job-roles/2/applications")
+			.set("Authorization", `Bearer ${token}`)
+			.attach("cv", Buffer.alloc(5 * 1024 * 1024 + 1), {
+				filename: "large-cv.pdf",
+				contentType: "application/pdf",
+			});
+
+		expect(response.status).toBe(400);
+		expect(response.body).toEqual({ error: "CV must not exceed 5 MB" });
+		expect(serviceMock.apply).not.toHaveBeenCalled();
+	});
+
+	it.each([
+		["closed", "Job role is not open for applications"],
+		["full", "Job role has no open positions"],
+		["duplicate", "Applicant has already applied for this job role"],
+	])("returns 400 when the job role is %s", async (_scenario, error) => {
+		serviceMock.apply.mockRejectedValue(new Error(error));
+
+		const response = await request(app)
+			.post("/job-roles/2/applications")
+			.set("Authorization", `Bearer ${token}`)
+			.attach("cv", Buffer.from("cv-content"), {
+				filename: "cv.pdf",
+				contentType: "application/pdf",
+			});
+
+		expect(response.status).toBe(400);
+		expect(response.body).toEqual({ error });
 	});
 });

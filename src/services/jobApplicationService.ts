@@ -1,12 +1,12 @@
-import type { CreateJobApplicationRequestDto, JobApplicationResponseDto } from "../dtos/jobApplicationDto";
-import { JobApplicationMapper } from "../mappers/jobApplicationMapper";
 import { JobApplicationDao } from "../daos/jobApplicationDao";
 import { JobRoleDao } from "../daos/jobRoleDao";
-
-type ApplyForJobRoleRequestDto = Omit<
+import type {
 	CreateJobApplicationRequestDto,
-	"status"
->;
+	JobApplicationResponseDto,
+} from "../dtos/jobApplicationDto";
+import { JobApplicationMapper } from "../mappers/jobApplicationMapper";
+
+type ApplyForJobRoleRequestDto = Omit<CreateJobApplicationRequestDto, "status">;
 
 export class JobApplicationService {
 	constructor(
