@@ -16,4 +16,5 @@ export interface JobRoleDetailedResponse extends JobRoleResponse {
 	sharepointUrl?: string | null;
 	statusId?: number | null;
 	numberOfOpenPositions?: number | null;
+	canApply: boolean;
 }
