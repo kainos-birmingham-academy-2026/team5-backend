@@ -22,14 +22,17 @@ const authHeader = {
 };
 
 describe("app routes", () => {
-	it.each(["/", "/health"])("GET %s returns 401 without a token", async (path) => {
-		const response = await request(app).get(path);
+	it.each(["/", "/health"])(
+		"GET %s returns 401 without a token",
+		async (path) => {
+			const response = await request(app).get(path);
 
-		expect(response.status).toBe(401);
-		expect(response.body).toEqual({
-			error: "Authentication token required",
-		});
-	});
+			expect(response.status).toBe(401);
+			expect(response.body).toEqual({
+				error: "Authentication token required",
+			});
+		},
+	);
 
 	it("GET / returns welcome message with a valid token", async () => {
 		const response = await request(app).get("/").set(authHeader);

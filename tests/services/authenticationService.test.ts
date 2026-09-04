@@ -156,7 +156,7 @@ describe("AuthenticationService", () => {
 					roleId: 1,
 					role: "applicant",
 				},
-						process.env.JWT_SECRET,
+				process.env.JWT_SECRET,
 			);
 			const decoded = service.verifyToken(token);
 
