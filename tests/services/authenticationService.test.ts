@@ -24,7 +24,12 @@ describe("AuthenticationService", () => {
 				roleId: 1,
 				createdAt: new Date(),
 				updatedAt: new Date(),
-				role: { id: 1, name: "applicant", createdAt: new Date(), updatedAt: new Date() },
+				role: {
+					id: 1,
+					name: "applicant",
+					createdAt: new Date(),
+					updatedAt: new Date(),
+				},
 			};
 
 			vi.mocked(userDao.findByEmail).mockResolvedValue(mockUser);
@@ -60,7 +65,12 @@ describe("AuthenticationService", () => {
 				roleId: 1,
 				createdAt: new Date(),
 				updatedAt: new Date(),
-				role: { id: 1, name: "applicant", createdAt: new Date(), updatedAt: new Date() },
+				role: {
+					id: 1,
+					name: "applicant",
+					createdAt: new Date(),
+					updatedAt: new Date(),
+				},
 			};
 
 			vi.mocked(userDao.findByEmail).mockResolvedValue(mockUser);
@@ -117,7 +127,12 @@ describe("AuthenticationService", () => {
 				password: "hashed-password",
 				roleId: 1,
 				createdAt: new Date(),
-				role: { id: 1, name: "applicant", createdAt: new Date(), updatedAt: new Date() },
+				role: {
+					id: 1,
+					name: "applicant",
+					createdAt: new Date(),
+					updatedAt: new Date(),
+				},
 				updatedAt: new Date(),
 			};
 

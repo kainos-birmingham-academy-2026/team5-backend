@@ -148,7 +148,9 @@ describe("Job Role Routes", () => {
 		};
 		serviceMock.findDetailedById.mockResolvedValue(role);
 
-		const response = await request(app).get("/job-roles/1").set(applicantHeader);
+		const response = await request(app)
+			.get("/job-roles/1")
+			.set(applicantHeader);
 
 		expect(response.status).toBe(200);
 		expect(response.body).toEqual(role);
@@ -157,7 +159,9 @@ describe("Job Role Routes", () => {
 	});
 
 	it("GET /job-roles/:id returns 400 for invalid id", async () => {
-		const response = await request(app).get("/job-roles/abc").set(applicantHeader);
+		const response = await request(app)
+			.get("/job-roles/abc")
+			.set(applicantHeader);
 
 		expect(response.status).toBe(400);
 		expect(response.body).toEqual({ error: "Invalid ID provided" });
@@ -167,7 +171,9 @@ describe("Job Role Routes", () => {
 	it("GET /job-roles/:id returns 404 when missing", async () => {
 		serviceMock.findDetailedById.mockResolvedValue(null);
 
-		const response = await request(app).get("/job-roles/999").set(applicantHeader);
+		const response = await request(app)
+			.get("/job-roles/999")
+			.set(applicantHeader);
 
 		expect(response.status).toBe(404);
 		expect(response.body).toEqual({ error: "Job role not found" });
