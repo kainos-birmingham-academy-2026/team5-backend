@@ -177,7 +177,7 @@ Response includes JWT token for authenticated requests.
 npm install
 ```
 
-2. Copy `.env.example` to `.env` and set `DATABASE_URL`.
+2. Copy `.env.example` to `.env` and set `JWT_SECRET`. Uncomment and set `DATABASE_URL` if you are not using the Docker PostgreSQL fallback. The API will not start without `JWT_SECRET`. Docker/production must inject `JWT_SECRET` at runtime (`docker run -e JWT_SECRET=...`).
 
 3. Prepare Prisma and start the development server:
 

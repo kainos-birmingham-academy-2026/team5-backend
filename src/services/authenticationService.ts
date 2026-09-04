@@ -1,10 +1,22 @@
 import { hash, verify } from "argon2";
+import "dotenv/config";
 import jwt from "jsonwebtoken";
 import { userDao } from "../daos/userDao";
 import type { LoginResponseDto, RegisterRequestDto } from "../dtos/userDto";
 import { toDomain, toResponse } from "../mappers/userMapper";
+import type { AuthUser } from "../types/auth";
 
-const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key-change-this";
+function getJwtSecret(): string {
+	const jwtSecret = process.env.JWT_SECRET;
+
+	if (!jwtSecret) {
+		throw new Error("JWT_SECRET environment variable is required");
+	}
+
+	return jwtSecret;
+}
+
+const JWT_SECRET = getJwtSecret();
 
 export class AuthenticationService {
 	async register(data: RegisterRequestDto): Promise<LoginResponseDto> {
@@ -26,7 +38,12 @@ export class AuthenticationService {
 
 		// Map to domain and generate token
 		const user = toDomain(createdUser);
-		const token = this.generateToken(user.id, user.email, user.roleId);
+		const token = this.generateToken(
+			user.id,
+			user.email,
+			user.roleId,
+			user.role,
+		);
 
 		return {
 			user: toResponse(user),
@@ -49,7 +66,12 @@ export class AuthenticationService {
 
 		// Map to domain and generate token
 		const user = toDomain(prismaUser);
-		const token = this.generateToken(user.id, user.email, user.roleId);
+		const token = this.generateToken(
+			user.id,
+			user.email,
+			user.roleId,
+			user.role,
+		);
 
 		return {
 			user: toResponse(user),
@@ -57,12 +79,18 @@ export class AuthenticationService {
 		};
 	}
 
-	private generateToken(userId: string, email: string, roleId: number): string {
+	private generateToken(
+		userId: string,
+		email: string,
+		roleId: number,
+		role: string,
+	): string {
 		return jwt.sign(
 			{
 				userId,
 				email,
 				roleId,
+				role,
 			},
 			JWT_SECRET,
 			{
@@ -71,14 +99,10 @@ export class AuthenticationService {
 		);
 	}
 
-	verifyToken(token: string): {
-		userId: string;
-		email: string;
-		roleId: number;
-	} {
+	verifyToken(token: string): AuthUser {
 		try {
 			const decoded = jwt.verify(token, JWT_SECRET);
-			return decoded as { userId: string; email: string; roleId: number };
+			return decoded as AuthUser;
 		} catch {
 			throw new Error("Invalid or expired token");
 		}

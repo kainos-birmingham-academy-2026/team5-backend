@@ -24,6 +24,12 @@ describe("AuthenticationService", () => {
 				roleId: 1,
 				createdAt: new Date(),
 				updatedAt: new Date(),
+				role: {
+					id: 1,
+					name: "applicant",
+					createdAt: new Date(),
+					updatedAt: new Date(),
+				},
 			};
 
 			vi.mocked(userDao.findByEmail).mockResolvedValue(mockUser);
@@ -35,6 +41,7 @@ describe("AuthenticationService", () => {
 				id: "user-1",
 				email: "john@example.com",
 				roleId: 1,
+				role: "applicant",
 				createdAt: mockUser.createdAt,
 				updatedAt: mockUser.updatedAt,
 			});
@@ -58,6 +65,12 @@ describe("AuthenticationService", () => {
 				roleId: 1,
 				createdAt: new Date(),
 				updatedAt: new Date(),
+				role: {
+					id: 1,
+					name: "applicant",
+					createdAt: new Date(),
+					updatedAt: new Date(),
+				},
 			};
 
 			vi.mocked(userDao.findByEmail).mockResolvedValue(mockUser);
@@ -82,6 +95,7 @@ describe("AuthenticationService", () => {
 				roleId: 1,
 				createdAt,
 				updatedAt,
+				role: { id: 1, name: "applicant", createdAt, updatedAt },
 			});
 
 			const result = await service.register({
@@ -99,6 +113,7 @@ describe("AuthenticationService", () => {
 				id: "user-1",
 				email: "john@example.com",
 				roleId: 1,
+				role: "applicant",
 				createdAt,
 				updatedAt,
 			});
@@ -112,6 +127,12 @@ describe("AuthenticationService", () => {
 				password: "hashed-password",
 				roleId: 1,
 				createdAt: new Date(),
+				role: {
+					id: 1,
+					name: "applicant",
+					createdAt: new Date(),
+					updatedAt: new Date(),
+				},
 				updatedAt: new Date(),
 			};
 
@@ -129,14 +150,20 @@ describe("AuthenticationService", () => {
 	describe("verifyToken", () => {
 		it("should verify and decode valid token", () => {
 			const token = jwt.sign(
-				{ userId: "user-1", email: "john@example.com", roleId: 1 },
-				process.env.JWT_SECRET || "your-secret-key-change-this",
+				{
+					userId: "user-1",
+					email: "john@example.com",
+					roleId: 1,
+					role: "applicant",
+				},
+				process.env.JWT_SECRET,
 			);
 			const decoded = service.verifyToken(token);
 
 			expect(decoded.userId).toBe("user-1");
 			expect(decoded.email).toBe("john@example.com");
 			expect(decoded.roleId).toBe(1);
+			expect(decoded.role).toBe("applicant");
 		});
 
 		it("should throw error for invalid token", () => {
