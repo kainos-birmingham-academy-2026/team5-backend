@@ -217,16 +217,18 @@ tests/
 4. If missing or invalid: returns 401 Unauthorized
 5. Write endpoints (`POST`, `PUT`, `DELETE /job-roles`) also require `requireRole("admin")`
 6. Non-admin authenticated users receive 403 Forbidden on write endpoints
-7. `POST /auth/register` and `POST /auth/login` remain public
-8. `GET /` and `GET /health` remain public health/welcome routes
+7. `GET /auth/user/:id` is allowed only for the authenticated user (`req.user.userId === id`) or an admin
+8. `POST /auth/register` and `POST /auth/login` remain public
+9. `GET /` and `GET /health` require a valid JWT
 
 ## Security Considerations
 - **Password Storage**: All passwords are hashed with bcrypt (10 salt rounds) before storage
 - **Token Security**: 
   - Tokens use HS256 algorithm
-  - Secret key should be stored in environment variables (currently `JWT_SECRET`)
+  - `JWT_SECRET` is required at process start (no hardcoded fallback)
+  - Copy `.env.example` to `.env` for local development; CI and Docker runtime must set `JWT_SECRET`
   - Tokens expire after 24 hours
-  - Change `JWT_SECRET` to a strong value in production
+  - Use a strong unique `JWT_SECRET` in production
 - **HTTPS**: All API calls should use HTTPS in production
 - **Token Storage**: Frontend should use secure storage mechanism (HttpOnly cookies recommended)
 

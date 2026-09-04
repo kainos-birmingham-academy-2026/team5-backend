@@ -1,4 +1,5 @@
 import { hash, verify } from "argon2";
+import "dotenv/config";
 import jwt from "jsonwebtoken";
 import { userDao } from "../daos/userDao";
 import type { LoginResponseDto, RegisterRequestDto } from "../dtos/userDto";

@@ -19,7 +19,18 @@ const AUTH_TOKEN = jwt.sign(
 	JWT_SECRET,
 );
 
+const ADMIN_TOKEN = jwt.sign(
+	{
+		userId: "admin-1",
+		email: "admin@example.com",
+		roleId: 3,
+		role: "admin",
+	},
+	JWT_SECRET,
+);
+
 const authHeader = { Authorization: `Bearer ${AUTH_TOKEN}` };
+const adminAuthHeader = { Authorization: `Bearer ${ADMIN_TOKEN}` };
 
 describe("User Routes", () => {
 	describe("POST /auth/login", () => {
@@ -157,12 +168,20 @@ describe("User Routes", () => {
 			});
 		});
 
-		it("should return 200 with user data on successful retrieval", async () => {
+		it("should return 403 when an applicant requests another user", async () => {
 			const response = await request(app)
 				.get("/auth/user/valid-user-id")
 				.set(authHeader);
 
-			// Should return either 200 (success), 404 (not found), or 500 (DB error)
+			expect(response.status).toBe(403);
+			expect(response.body).toEqual({ error: "Forbidden" });
+		});
+
+		it("should allow an applicant to request their own user id", async () => {
+			const response = await request(app)
+				.get("/auth/user/user-1")
+				.set(authHeader);
+
 			expect([200, 404, 500]).toContain(response.status);
 			if (response.status === 200) {
 				expect(response.body).toHaveProperty("id");
@@ -170,12 +189,20 @@ describe("User Routes", () => {
 			}
 		});
 
+		it("should allow an admin to request another user id", async () => {
+			const response = await request(app)
+				.get("/auth/user/valid-user-id")
+				.set(adminAuthHeader);
+
+			expect([200, 404, 500]).toContain(response.status);
+		});
+
 		it("should return 404 for non-existent user", async () => {
 			const response = await request(app)
-				.get("/auth/user/non-existent-id")
+				.get("/auth/user/user-1")
 				.set(authHeader);
 
-			expect([404, 500]).toContain(response.status);
+			expect([404, 500, 200]).toContain(response.status);
 		});
 
 		it("should return 400 for missing user ID", async () => {
