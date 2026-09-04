@@ -37,6 +37,9 @@ export const JobRoleMapper = {
 			sharepointUrl: jobRole.sharepointUrl,
 			statusId: jobRole.statusId,
 			numberOfOpenPositions: jobRole.numberOfOpenPositions,
+			canApply:
+				jobRole.status.toLowerCase() === "open" &&
+				(jobRole.numberOfOpenPositions ?? 0) > 0,
 		};
 	},
 };
