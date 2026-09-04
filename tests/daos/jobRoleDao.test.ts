@@ -173,6 +173,42 @@ describe("JobRoleDao", () => {
 		});
 	});
 
+	it("findAllForAssistant selects and maps only the approved context fields", async () => {
+		prismaMock.jobRole.findMany.mockResolvedValue([jobRoleRecord]);
+
+		const result = await new JobRoleDao().findAllForAssistant();
+
+		expect(prismaMock.jobRole.findMany).toHaveBeenCalledWith({
+			select: {
+				jobRoleId: true,
+				roleName: true,
+				location: true,
+				closingDate: true,
+				status: true,
+				description: true,
+				responsibilities: true,
+				numberOfOpenPositions: true,
+				capability: { select: { capabilityName: true } },
+				band: { select: { bandName: true } },
+			},
+			orderBy: { jobRoleId: "asc" },
+		});
+		expect(result).toEqual([
+			{
+				jobRoleId: 11,
+				roleName: "Platform Engineer",
+				location: "Belfast",
+				closingDate: "2027-12-31",
+				status: "Open",
+				description: "Build platforms",
+				responsibilities: "Own delivery",
+				numberOfOpenPositions: 2,
+				capabilityName: "Engineering",
+				bandName: "Band 2",
+			},
+		]);
+	});
+
 	it("findById maps a job role and returns null when it does not exist", async () => {
 		prismaMock.jobRole.findUnique
 			.mockResolvedValueOnce(jobRoleRecord)
