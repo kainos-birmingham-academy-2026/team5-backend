@@ -124,7 +124,8 @@ Authenticates a user and returns a JWT token.
   {
     "userId": "user-uuid",
     "email": "user@example.com",
-    "roleId": "role-uuid",
+    "roleId": 1,
+    "role": "applicant",
     "iat": 1691419200,
     "exp": 1691505600
   }
@@ -209,11 +210,15 @@ tests/
 6. If no match: returns 401 Unauthorized
 7. Frontend stores token
 
-### Protected Routes (Future Implementation)
+### Protected Routes
 1. Frontend includes token in Authorization header: `Bearer <token>`
-2. Backend middleware verifies token signature and expiration
-3. If valid: extracts user information and proceeds
-4. If invalid: returns 401 Unauthorized
+2. `authMiddleware` verifies the token signature and expiration
+3. If valid: the decoded user (`userId`, `email`, `roleId`, `role`) is attached to `req.user`
+4. If missing or invalid: returns 401 Unauthorized
+5. Write endpoints (`POST`, `PUT`, `DELETE /job-roles`) also require `requireRole("admin")`
+6. Non-admin authenticated users receive 403 Forbidden on write endpoints
+7. `POST /auth/register` and `POST /auth/login` remain public
+8. `GET /` and `GET /health` remain public health/welcome routes
 
 ## Security Considerations
 - **Password Storage**: All passwords are hashed with bcrypt (10 salt rounds) before storage

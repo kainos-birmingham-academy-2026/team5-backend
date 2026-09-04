@@ -36,6 +36,7 @@ describe("UserController", () => {
 					id: "user-1",
 					email: "john@example.com",
 					roleId: 1,
+					role: "applicant",
 					createdAt: new Date(),
 					updatedAt: new Date(),
 				},
@@ -149,6 +150,7 @@ describe("UserController", () => {
 					id: "user-1",
 					email: "jane@example.com",
 					roleId: 1,
+					role: "applicant",
 					createdAt: new Date(),
 					updatedAt: new Date(),
 				},
@@ -263,6 +265,12 @@ describe("UserController", () => {
 				password: "hashed-password",
 				roleId: 1,
 				createdAt: new Date(),
+				role: {
+					id: 1,
+					name: "applicant",
+					createdAt: new Date(),
+					updatedAt: new Date(),
+				},
 				updatedAt: new Date(),
 			};
 
@@ -342,6 +350,12 @@ describe("UserController", () => {
 				roleId: 1,
 				createdAt: new Date(),
 				updatedAt: new Date(),
+				role: {
+					id: 1,
+					name: "applicant",
+					createdAt: new Date(),
+					updatedAt: new Date(),
+				},
 			};
 
 			vi.mocked(userDao.findById).mockResolvedValue(mockUser);

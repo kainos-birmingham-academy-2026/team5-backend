@@ -1,6 +1,19 @@
+import jwt from "jsonwebtoken";
 import request from "supertest";
 import { describe, expect, it } from "vitest";
 import app from "../../src/app";
+
+const AUTH_TOKEN = jwt.sign(
+	{
+		userId: "user-1",
+		email: "john@example.com",
+		roleId: 1,
+		role: "applicant",
+	},
+	process.env.JWT_SECRET || "your-secret-key-change-this",
+);
+
+const authHeader = { Authorization: `Bearer ${AUTH_TOKEN}` };
 
 describe("User Routes", () => {
 	describe("POST /auth/login", () => {
@@ -129,20 +142,32 @@ describe("User Routes", () => {
 	});
 
 	describe("GET /auth/user/:id", () => {
-		it("should return 200 with user data on successful retrieval", async () => {
+		it("should return 401 without a token", async () => {
 			const response = await request(app).get("/auth/user/valid-user-id");
+
+			expect(response.status).toBe(401);
+			expect(response.body).toEqual({
+				error: "Authentication token required",
+			});
+		});
+
+		it("should return 200 with user data on successful retrieval", async () => {
+			const response = await request(app)
+				.get("/auth/user/valid-user-id")
+				.set(authHeader);
 
 			// Should return either 200 (success), 404 (not found), or 500 (DB error)
 			expect([200, 404, 500]).toContain(response.status);
 			if (response.status === 200) {
 				expect(response.body).toHaveProperty("id");
-				expect(response.body).toHaveProperty("firstName");
 				expect(response.body).toHaveProperty("email");
 			}
 		});
 
 		it("should return 404 for non-existent user", async () => {
-			const response = await request(app).get("/auth/user/non-existent-id");
+			const response = await request(app)
+				.get("/auth/user/non-existent-id")
+				.set(authHeader);
 
 			expect([404, 500]).toContain(response.status);
 		});
