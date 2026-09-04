@@ -3,6 +3,12 @@ import request from "supertest";
 import { describe, expect, it } from "vitest";
 import app from "../../src/app";
 
+const JWT_SECRET = process.env.JWT_SECRET;
+
+if (!JWT_SECRET) {
+	throw new Error("JWT_SECRET environment variable is required for tests");
+}
+
 const AUTH_TOKEN = jwt.sign(
 	{
 		userId: "user-1",
@@ -10,7 +16,7 @@ const AUTH_TOKEN = jwt.sign(
 		roleId: 1,
 		role: "applicant",
 	},
-	process.env.JWT_SECRET || "your-secret-key-change-this",
+	JWT_SECRET,
 );
 
 const authHeader = { Authorization: `Bearer ${AUTH_TOKEN}` };

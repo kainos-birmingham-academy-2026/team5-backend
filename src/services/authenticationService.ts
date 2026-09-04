@@ -5,7 +5,17 @@ import type { LoginResponseDto, RegisterRequestDto } from "../dtos/userDto";
 import { toDomain, toResponse } from "../mappers/userMapper";
 import type { AuthUser } from "../types/auth";
 
-const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key-change-this";
+function getJwtSecret(): string {
+	const jwtSecret = process.env.JWT_SECRET;
+
+	if (!jwtSecret) {
+		throw new Error("JWT_SECRET environment variable is required");
+	}
+
+	return jwtSecret;
+}
+
+const JWT_SECRET = getJwtSecret();
 
 export class AuthenticationService {
 	async register(data: RegisterRequestDto): Promise<LoginResponseDto> {

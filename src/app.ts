@@ -1,5 +1,6 @@
 import express from "express";
 import morganMiddleware from "./config/morganMiddleware";
+import { authMiddleware } from "./middleware/authMiddleware";
 import jobRoleRouter from "./routes/jobRoleRouter";
 import userRouter from "./routes/userRouter";
 
@@ -10,11 +11,11 @@ app.use(express.json());
 app.use(jobRoleRouter);
 app.use(userRouter);
 
-app.get("/", (_req, res) => {
+app.get("/", authMiddleware, (_req, res) => {
 	res.json({ message: "Welcome to the API" });
 });
 
-app.get("/health", (_req, res) => {
+app.get("/health", authMiddleware, (_req, res) => {
 	res.json({ status: "UP", timestamp: new Date().toLocaleTimeString() });
 });
 

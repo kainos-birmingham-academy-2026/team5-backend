@@ -20,7 +20,11 @@ vi.mock("../../src/services/jobRoleService.js", () => ({
 
 import app from "../../src/app";
 
-const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key-change-this";
+const JWT_SECRET = process.env.JWT_SECRET;
+
+if (!JWT_SECRET) {
+	throw new Error("JWT_SECRET environment variable is required for tests");
+}
 
 const applicantToken = jwt.sign(
 	{
