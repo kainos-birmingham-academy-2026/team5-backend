@@ -1,4 +1,5 @@
 import type { Prisma } from "@prisma/client";
+import type { AiAssistantJobRoleContextDto } from "../dtos/aiAssistantDto";
 import type { CreateJobRoleRequestDto } from "../dtos/jobRoleDto";
 import type {
 	JobRoleFilterOptionsDto,
@@ -19,6 +20,7 @@ const jobRoleRelationsInclude = {
 	statusRef: true,
 } as const;
 
+<<<<<<< HEAD
 const sortFieldOrderBy: Record<
 	JobRoleSortField,
 	(order: JobRoleSortOrder) => Prisma.JobRoleOrderByWithRelationInput
@@ -30,6 +32,20 @@ const sortFieldOrderBy: Record<
 	closingDate: (order) => ({ closingDate: order }),
 	status: (order) => ({ status: order }),
 };
+=======
+const aiAssistantContextSelect = {
+	jobRoleId: true,
+	roleName: true,
+	location: true,
+	closingDate: true,
+	status: true,
+	description: true,
+	responsibilities: true,
+	numberOfOpenPositions: true,
+	capability: { select: { capabilityName: true } },
+	band: { select: { bandName: true } },
+} as const;
+>>>>>>> 7113044 (AI Assistant/ GPT-Nano-5 from Azure AI Foundry (#16))
 
 type JobRoleWithRelations = Prisma.JobRoleGetPayload<{
 	include: typeof jobRoleRelationsInclude;
@@ -169,6 +185,26 @@ export class JobRoleDao {
 			bands: bands.map(({ bandName }) => bandName),
 			statuses: statuses.map(({ status }) => status),
 		};
+	}
+
+	async findAllForAssistant(): Promise<AiAssistantJobRoleContextDto[]> {
+		const jobRoles = await prisma.jobRole.findMany({
+			select: aiAssistantContextSelect,
+			orderBy: { jobRoleId: "asc" },
+		});
+
+		return jobRoles.map((jobRole) => ({
+			jobRoleId: jobRole.jobRoleId,
+			roleName: jobRole.roleName,
+			location: jobRole.location,
+			capabilityName: jobRole.capability.capabilityName,
+			bandName: jobRole.band.bandName,
+			closingDate: jobRole.closingDate,
+			status: jobRole.status,
+			description: jobRole.description,
+			responsibilities: jobRole.responsibilities,
+			numberOfOpenPositions: jobRole.numberOfOpenPositions,
+		}));
 	}
 
 	async findById(id: number): Promise<JobRole | null> {

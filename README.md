@@ -131,6 +131,37 @@ standard local PostgreSQL installation on `5432`.
 - `PUT /job-roles/:id` - Update job role
 - `DELETE /job-roles/:id` - Delete job role
 
+### AI Assistant
+- `POST /assistant/questions` - Ask a question grounded only in the current job roles
+
+Request:
+
+```json
+{
+  "question": "Which open engineering roles are based in Belfast?"
+}
+```
+
+Response:
+
+```json
+{
+  "answer": "The available job role information shows..."
+}
+```
+
+Set `AZURE_OPENAI_ENDPOINT`, `AZURE_OPENAI_API_KEY`, and
+`AZURE_OPENAI_DEPLOYMENT` in `.env` before using this endpoint. The endpoint may
+be the Foundry project endpoint or the OpenAI-compatible `/openai/v1` endpoint.
+The key stays on the backend. Requests include no tools or conversation history
+and are limited to 10 requests per minute per client. The database query and
+mapper explicitly allowlist the job-role fields sent to Azure OpenAI. Questions
+are limited to 1,000 characters and responses to 500 tokens.
+
+Job-role text is transmitted to Azure OpenAI to generate each answer. Do not put
+secrets or personal data in those fields. Confirm that your Azure resource's
+retention settings meet your organisation's requirements before production use.
+
 ## Authentication System
 
 This backend includes a complete user authentication system with JWT-based token management. Key features:
