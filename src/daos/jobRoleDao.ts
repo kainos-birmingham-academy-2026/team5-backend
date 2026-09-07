@@ -1,4 +1,5 @@
 import type { Prisma } from "@prisma/client";
+import type { AiAssistantJobRoleContextDto } from "../dtos/aiAssistantDto";
 import type { CreateJobRoleRequestDto } from "../dtos/jobRoleDto";
 import type {
 	JobRoleFilterOptionsDto,
@@ -11,6 +12,19 @@ const jobRoleRelationsInclude = {
 	capability: true,
 	band: true,
 	statusRef: true,
+} as const;
+
+const aiAssistantContextSelect = {
+	jobRoleId: true,
+	roleName: true,
+	location: true,
+	closingDate: true,
+	status: true,
+	description: true,
+	responsibilities: true,
+	numberOfOpenPositions: true,
+	capability: { select: { capabilityName: true } },
+	band: { select: { bandName: true } },
 } as const;
 
 type JobRoleWithRelations = Prisma.JobRoleGetPayload<{
@@ -142,6 +156,26 @@ export class JobRoleDao {
 			bands: bands.map(({ bandName }) => bandName),
 			statuses: statuses.map(({ status }) => status),
 		};
+	}
+
+	async findAllForAssistant(): Promise<AiAssistantJobRoleContextDto[]> {
+		const jobRoles = await prisma.jobRole.findMany({
+			select: aiAssistantContextSelect,
+			orderBy: { jobRoleId: "asc" },
+		});
+
+		return jobRoles.map((jobRole) => ({
+			jobRoleId: jobRole.jobRoleId,
+			roleName: jobRole.roleName,
+			location: jobRole.location,
+			capabilityName: jobRole.capability.capabilityName,
+			bandName: jobRole.band.bandName,
+			closingDate: jobRole.closingDate,
+			status: jobRole.status,
+			description: jobRole.description,
+			responsibilities: jobRole.responsibilities,
+			numberOfOpenPositions: jobRole.numberOfOpenPositions,
+		}));
 	}
 
 	async findById(id: number): Promise<JobRole | null> {
