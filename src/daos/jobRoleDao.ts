@@ -21,6 +21,7 @@ const jobRoleRelationsInclude = {
 } as const;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 const sortFieldOrderBy: Record<
 	JobRoleSortField,
 	(order: JobRoleSortOrder) => Prisma.JobRoleOrderByWithRelationInput
@@ -33,6 +34,8 @@ const sortFieldOrderBy: Record<
 	status: (order) => ({ status: order }),
 };
 =======
+=======
+>>>>>>> ecf5bc2 (role order setup)
 const aiAssistantContextSelect = {
 	jobRoleId: true,
 	roleName: true,
@@ -45,7 +48,23 @@ const aiAssistantContextSelect = {
 	capability: { select: { capabilityName: true } },
 	band: { select: { bandName: true } },
 } as const;
+<<<<<<< HEAD
 >>>>>>> 7113044 (AI Assistant/ GPT-Nano-5 from Azure AI Foundry (#16))
+=======
+=======
+const sortFieldOrderBy: Record<
+	JobRoleSortField,
+	(order: JobRoleSortOrder) => Prisma.JobRoleOrderByWithRelationInput
+> = {
+	roleName: (order) => ({ roleName: order }),
+	location: (order) => ({ location: order }),
+	capability: (order) => ({ capability: { capabilityName: order } }),
+	band: (order) => ({ band: { bandName: order } }),
+	closingDate: (order) => ({ closingDate: order }),
+	status: (order) => ({ status: order }),
+};
+>>>>>>> 79cf15a (role order setup)
+>>>>>>> ecf5bc2 (role order setup)
 
 type JobRoleWithRelations = Prisma.JobRoleGetPayload<{
 	include: typeof jobRoleRelationsInclude;
