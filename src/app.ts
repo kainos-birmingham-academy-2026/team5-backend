@@ -1,6 +1,7 @@
 import express from "express";
 import morganMiddleware from "./config/morganMiddleware";
 import { authMiddleware } from "./middleware/authMiddleware";
+import aiAssistantRouter from "./routes/AiAssistantRouter";
 import jobRoleRouter from "./routes/jobRoleRouter";
 import userRouter from "./routes/userRouter";
 
@@ -8,6 +9,7 @@ const app = express();
 
 app.use(morganMiddleware);
 app.use(express.json());
+app.use(aiAssistantRouter);
 app.use(jobRoleRouter);
 app.use(userRouter);
 
