@@ -159,7 +159,32 @@ describe("JobRoleService", () => {
 			sharepointUrl: "https://sharepoint.local/job-role/backend-engineer",
 			statusId: 1,
 			numberOfOpenPositions: 3,
+			canApply: true,
 		});
+	});
+
+	it("findDetailedById reports roles without vacancies as unavailable", async () => {
+		const fullRole = new JobRole(
+			2,
+			"Frontend Engineer",
+			"Dubai",
+			2,
+			3,
+			"2027-11-30",
+			"Open",
+			"Product",
+			"Band 3",
+			null,
+			null,
+			null,
+			null,
+			0,
+		);
+		vi.mocked(daoMock.findById).mockResolvedValue(fullRole);
+
+		const result = await service.findDetailedById(2);
+
+		expect(result?.canApply).toBe(false);
 	});
 
 	it("findDetailedById returns null when dao returns null", async () => {
