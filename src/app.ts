@@ -1,4 +1,5 @@
 import express from "express";
+import multer from "multer";
 import morganMiddleware from "./config/morganMiddleware";
 import { authMiddleware } from "./middleware/authMiddleware";
 import aiAssistantRouter from "./routes/AiAssistantRouter";
@@ -13,7 +14,26 @@ app.use(aiAssistantRouter);
 app.use(jobRoleRouter);
 app.use(userRouter);
 
-app.get("/", authMiddleware, (_req, res) => {
+app.use(
+	(
+		error: Error,
+		_req: express.Request,
+		res: express.Response,
+		_next: express.NextFunction,
+	) => {
+		if (
+			error instanceof multer.MulterError &&
+			error.code === "LIMIT_FILE_SIZE"
+		) {
+			res.status(400).json({ error: "CV must not exceed 5 MB" });
+			return;
+		}
+
+		res.status(400).json({ error: error.message });
+	},
+);
+
+app.get("/", (_req, res) => {
 	res.json({ message: "Welcome to the API" });
 });
 

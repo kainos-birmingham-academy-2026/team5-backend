@@ -32,7 +32,8 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  role Role @relation(fields: [roleId], references: [id])
+  role         Role             @relation(fields: [roleId], references: [id])
+  applications JobApplication[]
 
   @@map("users")
 }
@@ -55,8 +56,27 @@ model JobRole {
   capability Capability @relation(fields: [capabilityId], references: [capabilityId])
   band       Band       @relation(fields: [bandId], references: [nameId])
   statusRef  Status?    @relation(fields: [statusId], references: [statusId])
+  applications JobApplication[]
 
   @@map("job-roles")
+}
+
+model JobApplication {
+  applicationId Int      @id @default(autoincrement())
+  applicantId   String
+  jobRoleId     Int
+  cvData        Bytes
+  cvFileName    String
+  cvMimeType    String
+  status        String   @default("in progress")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  applicant User    @relation(fields: [applicantId], references: [id])
+  jobRole   JobRole @relation(fields: [jobRoleId], references: [jobRoleId])
+
+  @@unique([applicantId, jobRoleId])
+  @@map("job-applications")
 }
 
 model Capability {
