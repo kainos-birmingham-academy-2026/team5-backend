@@ -1,7 +1,6 @@
 import express from "express";
 import multer from "multer";
 import morganMiddleware from "./config/morganMiddleware";
-import { authMiddleware } from "./middleware/authMiddleware";
 import aiAssistantRouter from "./routes/AiAssistantRouter";
 import jobRoleRouter from "./routes/jobRoleRouter";
 import userRouter from "./routes/userRouter";
@@ -37,7 +36,7 @@ app.get("/", (_req, res) => {
 	res.json({ message: "Welcome to the API" });
 });
 
-app.get("/health", authMiddleware, (_req, res) => {
+app.get("/health", (_req, res) => {
 	res.json({ status: "UP", timestamp: new Date().toLocaleTimeString() });
 });
 

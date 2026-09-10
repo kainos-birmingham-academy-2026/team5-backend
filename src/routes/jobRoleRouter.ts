@@ -7,6 +7,7 @@ import {
 	requireApplicant,
 	requireAuthentication,
 } from "../middleware/authenticationMiddleware.js";
+import { authMiddleware, requireRole } from "../middleware/authMiddleware.js";
 import { cvUpload } from "../middleware/cvUploadMiddleware.js";
 import { JobApplicationService } from "../services/jobApplicationService.js";
 import { JobRoleService } from "../services/jobRoleService.js";
