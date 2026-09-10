@@ -52,6 +52,18 @@ export class UserController {
 				return;
 			}
 
+			const requester = req.user;
+			if (!requester) {
+				res.status(401).json({ error: "Authentication token required" });
+				return;
+			}
+
+			const isAdmin = requester.role === "admin";
+			if (!isAdmin && requester.userId !== id) {
+				res.status(403).json({ error: "Forbidden" });
+				return;
+			}
+
 			const prismaUser = await userDao.findById(id);
 
 			if (!prismaUser) {

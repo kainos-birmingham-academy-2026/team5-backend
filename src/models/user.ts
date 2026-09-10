@@ -6,8 +6,9 @@ export class User {
 		public roleId: number,
 		public createdAt: Date,
 		public updatedAt: Date,
+		public role: string,
 	) {
-		if (!email || !password || roleId === undefined) {
+		if (!email || !password || roleId === undefined || !role) {
 			throw new Error("Email, password, and role are required");
 		}
 		// Basic email validation

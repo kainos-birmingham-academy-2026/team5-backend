@@ -42,6 +42,9 @@ RUN npm run build
 # Final runtime image.
 FROM base AS runtime
 ENV NODE_ENV=production
+# JWT_SECRET must be provided at container runtime, for example:
+# docker run -e JWT_SECRET=... or a deployment environment variable.
+# Do not bake a production secret into this image.
 
 COPY --from=production-dependencies /app/node_modules ./node_modules
 COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
