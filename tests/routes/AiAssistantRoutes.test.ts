@@ -1,3 +1,4 @@
+import jwt from "jsonwebtoken";
 import request from "supertest";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { AiAssistantConfigurationError } from "../../src/clients/AzureOpenAiClient";
@@ -14,9 +15,50 @@ vi.mock("../../src/services/AiAssistantService.js", () => ({
 
 import app from "../../src/app";
 
+const JWT_SECRET = process.env.JWT_SECRET;
+
+if (!JWT_SECRET) {
+	throw new Error("JWT_SECRET environment variable is required for tests");
+}
+
+const applicantToken = jwt.sign(
+	{
+		userId: "user-1",
+		email: "john@example.com",
+		roleId: 1,
+		role: "applicant",
+	},
+	JWT_SECRET,
+);
+
+const applicantHeader = { Authorization: `Bearer ${applicantToken}` };
+
 describe("AI Assistant Routes", () => {
 	beforeEach(() => {
 		vi.resetAllMocks();
+	});
+
+	it("POST /assistant/questions returns 401 without a token", async () => {
+		const response = await request(app)
+			.post("/assistant/questions")
+			.send({ question: "What engineering roles are open?" });
+
+		expect(response.status).toBe(401);
+		expect(response.body).toEqual({
+			error: "Authentication token required",
+		});
+		expect(serviceMock.ask).not.toHaveBeenCalled();
+	});
+
+	it("POST /assistant/questions returns 401 with an invalid token", async () => {
+		const response = await request(app)
+			.post("/assistant/questions")
+			.set({ Authorization: "Bearer not-a-valid-token" })
+			.send({ question: "What engineering roles are open?" });
+
+		expect(response.status).toBe(401);
+		expect(response.body).toEqual({ error: "Invalid or expired token" });
+		expect(serviceMock.ask).not.toHaveBeenCalled();
 	});
 
 	it("POST /assistant/questions returns a user-friendly answer", async () => {
@@ -26,6 +68,7 @@ describe("AI Assistant Routes", () => {
 
 		const response = await request(app)
 			.post("/assistant/questions")
+			.set(applicantHeader)
 			.send({ question: "  What engineering roles are open?  " });
 
 		expect(response.status).toBe(200);
@@ -42,6 +85,7 @@ describe("AI Assistant Routes", () => {
 		async (body) => {
 			const response = await request(app)
 				.post("/assistant/questions")
+				.set(applicantHeader)
 				.send(body);
 
 			expect(response.status).toBe(400);
@@ -61,6 +105,7 @@ describe("AI Assistant Routes", () => {
 
 		const response = await request(app)
 			.post("/assistant/questions")
+			.set(applicantHeader)
 			.send({ question: "What roles are open?" });
 
 		expect(response.status).toBe(503);
