@@ -2,6 +2,7 @@ import { Router } from "express";
 import { rateLimit } from "express-rate-limit";
 import { AiAssistantController } from "../controllers/AiAssistantController";
 import { JobRoleDao } from "../daos/jobRoleDao";
+import { authMiddleware } from "../middleware/authMiddleware";
 import { AiAssistantService } from "../services/AiAssistantService";
 
 const aiAssistantRouter = Router();
@@ -20,6 +21,7 @@ const assistantRateLimit = rateLimit({
 
 aiAssistantRouter.post(
 	"/assistant/questions",
+	authMiddleware,
 	assistantRateLimit,
 	aiAssistantController.ask.bind(aiAssistantController),
 );
