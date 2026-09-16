@@ -268,9 +268,7 @@ export class JobRoleDao {
 				error instanceof Prisma.PrismaClientKnownRequestError &&
 				error.code === "P2003"
 			) {
-				throw new Error(
-					"Cannot delete a job role with existing applications",
-				);
+				throw new Error("Cannot delete a job role with existing applications");
 			}
 
 			throw error;

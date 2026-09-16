@@ -1,8 +1,5 @@
 import type { Request, Response } from "express";
-import {
-	CreateJobRoleSchema,
-	UpdateJobRoleSchema,
-} from "../dtos/jobRoleDto";
+import { CreateJobRoleSchema, UpdateJobRoleSchema } from "../dtos/jobRoleDto";
 import { JobRoleFilterQuerySchema } from "../dtos/jobRoleFilterDto";
 import type { JobRoleService } from "../services/jobRoleService.js";
 

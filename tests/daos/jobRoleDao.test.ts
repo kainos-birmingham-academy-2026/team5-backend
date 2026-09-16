@@ -363,10 +363,13 @@ describe("JobRoleDao", () => {
 	it("delete throws a clear error when the job role has existing applications", async () => {
 		prismaMock.jobRole.findUnique.mockResolvedValue(jobRoleRecord);
 		prismaMock.jobRole.delete.mockRejectedValue(
-			new Prisma.PrismaClientKnownRequestError("Foreign key constraint failed", {
-				code: "P2003",
-				clientVersion: "6.19.3",
-			}),
+			new Prisma.PrismaClientKnownRequestError(
+				"Foreign key constraint failed",
+				{
+					code: "P2003",
+					clientVersion: "6.19.3",
+				},
+			),
 		);
 
 		await expect(new JobRoleDao().delete(11)).rejects.toThrow(
