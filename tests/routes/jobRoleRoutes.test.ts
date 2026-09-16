@@ -55,24 +55,54 @@ describe("Job Role Routes", () => {
 		vi.resetAllMocks();
 	});
 
-	it("GET /job-roles returns 401 without a token", async () => {
+	it("GET /job-roles returns 200 without a token", async () => {
+		const result = {
+			items: [
+				{
+					jobRoleId: 1,
+					roleName: "Backend Engineer",
+					location: "Cairo",
+					capabilityName: "Engineering",
+					bandName: "Band 2",
+					closingDate: "2027-12-31",
+					status: "Open",
+				},
+			],
+			page: 1,
+			pageSize: 10,
+			totalItems: 1,
+			totalPages: 1,
+		};
+		serviceMock.findAll.mockResolvedValue(result);
+
 		const response = await request(app).get("/job-roles");
 
-		expect(response.status).toBe(401);
-		expect(response.body).toEqual({
-			error: "Authentication token required",
+		expect(response.status).toBe(200);
+		expect(response.body).toEqual(result);
+		expect(serviceMock.findAll).toHaveBeenCalledWith(1, 10, {
+			capability: [],
+			band: [],
+			status: [],
 		});
-		expect(serviceMock.findAll).not.toHaveBeenCalled();
 	});
 
-	it("GET /job-roles returns 401 with an invalid token", async () => {
+	it("GET /job-roles ignores an invalid token and still returns listings", async () => {
+		const result = {
+			items: [],
+			page: 1,
+			pageSize: 10,
+			totalItems: 0,
+			totalPages: 0,
+		};
+		serviceMock.findAll.mockResolvedValue(result);
+
 		const response = await request(app)
 			.get("/job-roles")
 			.set({ Authorization: "Bearer not-a-valid-token" });
 
-		expect(response.status).toBe(401);
-		expect(response.body).toEqual({ error: "Invalid or expired token" });
-		expect(serviceMock.findAll).not.toHaveBeenCalled();
+		expect(response.status).toBe(200);
+		expect(response.body).toEqual(result);
+		expect(serviceMock.findAll).toHaveBeenCalled();
 	});
 
 	it("GET /job-roles returns 200 and paginated results", async () => {
@@ -118,7 +148,7 @@ describe("Job Role Routes", () => {
 		expect(serviceMock.findAll).not.toHaveBeenCalled();
 	});
 
-	it("GET /job-roles/filter-options returns available checkbox values", async () => {
+	it("GET /job-roles/filter-options returns available checkbox values without a token", async () => {
 		const options = {
 			capabilities: ["Data", "Engineering"],
 			bands: ["Band 1", "Band 2"],
@@ -126,9 +156,7 @@ describe("Job Role Routes", () => {
 		};
 		serviceMock.getFilterOptions.mockResolvedValue(options);
 
-		const response = await request(app)
-			.get("/job-roles/filter-options")
-			.set(applicantHeader);
+		const response = await request(app).get("/job-roles/filter-options");
 
 		expect(response.status).toBe(200);
 		expect(response.body).toEqual(options);
