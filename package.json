@@ -17,6 +17,8 @@
 		"test:coverage": "vitest run --coverage"
 	},
 	"dependencies": {
+		"@azure/identity": "^4.13.3",
+		"@azure/storage-blob": "^12.33.0",
 		"@prisma/client": "^6.19.3",
 		"@types/morgan": "^1.9.10",
 		"argon2": "^0.45.1",

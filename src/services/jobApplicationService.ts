@@ -1,3 +1,7 @@
+import {
+	AzureBlobStorageClient,
+	type CvBlobStorageClient,
+} from "../clients/AzureBlobStorageClient";
 import { JobApplicationDao } from "../daos/jobApplicationDao";
 import { JobRoleDao } from "../daos/jobRoleDao";
 import type {
@@ -12,6 +16,7 @@ export class JobApplicationService {
 	constructor(
 		private readonly jobApplicationDao: JobApplicationDao = new JobApplicationDao(),
 		private readonly jobRoleDao: JobRoleDao = new JobRoleDao(),
+		private readonly cvBlobStorageClient: CvBlobStorageClient = new AzureBlobStorageClient(),
 	) {}
 
 	async apply(
@@ -39,10 +44,24 @@ export class JobApplicationService {
 			throw new Error("Applicant has already applied for this job role");
 		}
 
-		const application = await this.jobApplicationDao.create({
-			...applicationData,
-			status: "in progress",
-		});
+		const cvBlobName = await this.cvBlobStorageClient.uploadCv(
+			applicationData.cvData,
+			applicationData.applicantId,
+			applicationData.cvMimeType,
+		);
+
+		let application;
+		try {
+			application = await this.jobApplicationDao.create({
+				...applicationData,
+				cvBlobName,
+				cvScanStatus: "pending",
+				status: "in progress",
+			});
+		} catch (error) {
+			await this.cvBlobStorageClient.deleteCv(cvBlobName);
+			throw error;
+		}
 
 		return JobApplicationMapper.toResponse(application);
 	}

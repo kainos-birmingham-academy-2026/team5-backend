@@ -4,8 +4,10 @@ export interface CreateJobApplicationRequestDto {
 	applicantId: string;
 	jobRoleId: number;
 	cvData: Buffer;
+	cvBlobName?: string | null;
 	cvFileName: string;
 	cvMimeType: string;
+	cvScanStatus?: string;
 	status: string;
 }
 

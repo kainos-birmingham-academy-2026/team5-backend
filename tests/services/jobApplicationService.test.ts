@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import type { CvBlobStorageClient } from "../../src/clients/AzureBlobStorageClient";
 import type { JobApplicationDao } from "../../src/daos/jobApplicationDao";
 import type { JobRoleDao } from "../../src/daos/jobRoleDao";
 import { JobApplication } from "../../src/models/jobApplication";
@@ -8,6 +9,7 @@ import { JobApplicationService } from "../../src/services/jobApplicationService"
 describe("JobApplicationService", () => {
 	let jobApplicationDaoMock: JobApplicationDao;
 	let jobRoleDaoMock: JobRoleDao;
+	let cvBlobStorageClientMock: CvBlobStorageClient;
 	let service: JobApplicationService;
 
 	const jobRole = new JobRole(
@@ -41,7 +43,15 @@ describe("JobApplicationService", () => {
 			create: vi.fn(),
 		} as unknown as JobApplicationDao;
 		jobRoleDaoMock = { findById: vi.fn() } as unknown as JobRoleDao;
-		service = new JobApplicationService(jobApplicationDaoMock, jobRoleDaoMock);
+		cvBlobStorageClientMock = {
+			uploadCv: vi.fn(),
+			deleteCv: vi.fn(),
+		};
+		service = new JobApplicationService(
+			jobApplicationDaoMock,
+			jobRoleDaoMock,
+			cvBlobStorageClientMock,
+		);
 	});
 
 	it("creates an in-progress application for an open role with vacancies", async () => {
@@ -50,6 +60,9 @@ describe("JobApplicationService", () => {
 		vi.mocked(
 			jobApplicationDaoMock.findByApplicantAndJobRole,
 		).mockResolvedValue(null);
+		vi.mocked(cvBlobStorageClientMock.uploadCv).mockResolvedValue(
+			"applications/applicant-1/cv-id.pdf",
+		);
 		vi.mocked(jobApplicationDaoMock.create).mockResolvedValue(
 			new JobApplication(
 				1,
@@ -69,8 +82,15 @@ describe("JobApplicationService", () => {
 
 		expect(jobApplicationDaoMock.create).toHaveBeenCalledWith({
 			...applicationData,
+			cvBlobName: "applications/applicant-1/cv-id.pdf",
+			cvScanStatus: "pending",
 			status: "in progress",
 		});
+		expect(cvBlobStorageClientMock.uploadCv).toHaveBeenCalledWith(
+			applicationData.cvData,
+			"applicant-1",
+			"application/pdf",
+		);
 		expect(result.status).toBe("in progress");
 	});
 
@@ -121,6 +141,37 @@ describe("JobApplicationService", () => {
 
 		await expect(service.apply(applicationData)).rejects.toThrow(errorMessage);
 		expect(jobApplicationDaoMock.create).not.toHaveBeenCalled();
+	});
+
+	it("does not upload a CV when the job role is not eligible", async () => {
+		vi.mocked(jobRoleDaoMock.findById).mockResolvedValue(null);
+
+		await expect(service.apply(applicationData)).rejects.toThrow(
+			"Job role not found",
+		);
+
+		expect(cvBlobStorageClientMock.uploadCv).not.toHaveBeenCalled();
+	});
+
+	it("deletes the uploaded CV when application creation fails", async () => {
+		vi.mocked(jobRoleDaoMock.findById).mockResolvedValue(jobRole);
+		vi.mocked(
+			jobApplicationDaoMock.findByApplicantAndJobRole,
+		).mockResolvedValue(null);
+		vi.mocked(cvBlobStorageClientMock.uploadCv).mockResolvedValue(
+			"applications/applicant-1/cv-id.pdf",
+		);
+		vi.mocked(jobApplicationDaoMock.create).mockRejectedValue(
+			new Error("Database unavailable"),
+		);
+
+		await expect(service.apply(applicationData)).rejects.toThrow(
+			"Database unavailable",
+		);
+
+		expect(cvBlobStorageClientMock.deleteCv).toHaveBeenCalledWith(
+			"applications/applicant-1/cv-id.pdf",
+		);
 	});
 
 	it("rejects a duplicate application", async () => {
