@@ -1,10 +1,14 @@
-import type { Prisma } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 import type { AiAssistantJobRoleContextDto } from "../dtos/aiAssistantDto";
-import type { CreateJobRoleRequestDto } from "../dtos/jobRoleDto";
+import type {
+	JobRoleCreateData,
+	UpdateJobRoleRequestDto,
+} from "../dtos/jobRoleDto";
 import type {
 	JobRoleFilterOptionsDto,
 	JobRoleFilters,
 } from "../dtos/jobRoleFilterDto";
+import type { JobRoleReferenceDataDto } from "../dtos/jobRoleReferenceDto";
 import { JobRole } from "../models/jobRole";
 import prisma from "../prismaClient";
 
@@ -66,11 +70,11 @@ export class JobRoleDao {
 		}
 	}
 
-	private toCreateData(jobRoleData: CreateJobRoleRequestDto) {
+	private toCreateData(jobRoleData: JobRoleCreateData) {
 		return jobRoleData;
 	}
 
-	private toUpdateData(jobRoleData: Partial<CreateJobRoleRequestDto>) {
+	private toUpdateData(jobRoleData: UpdateJobRoleRequestDto) {
 		return jobRoleData;
 	}
 
@@ -158,6 +162,22 @@ export class JobRoleDao {
 		};
 	}
 
+	/** Id-keyed lookup lists for the create/edit job role dropdowns (US012, US015). */
+	async getReferenceData(): Promise<JobRoleReferenceDataDto> {
+		const [capabilities, bands] = await Promise.all([
+			prisma.capability.findMany({
+				select: { capabilityId: true, capabilityName: true },
+				orderBy: { capabilityName: "asc" },
+			}),
+			prisma.band.findMany({
+				select: { nameId: true, bandName: true },
+				orderBy: { bandName: "asc" },
+			}),
+		]);
+
+		return { capabilities, bands };
+	}
+
 	async findAllForAssistant(): Promise<AiAssistantJobRoleContextDto[]> {
 		const jobRoles = await prisma.jobRole.findMany({
 			select: aiAssistantContextSelect,
@@ -187,7 +207,7 @@ export class JobRoleDao {
 		return jobRole ? this.toModel(jobRole) : null;
 	}
 
-	async create(jobRoleData: CreateJobRoleRequestDto): Promise<JobRole> {
+	async create(jobRoleData: JobRoleCreateData): Promise<JobRole> {
 		await this.validateRelations(
 			jobRoleData.capabilityId,
 			jobRoleData.bandId,
@@ -204,7 +224,7 @@ export class JobRoleDao {
 
 	async update(
 		id: number,
-		jobRoleData: Partial<CreateJobRoleRequestDto>,
+		jobRoleData: UpdateJobRoleRequestDto,
 	): Promise<JobRole | null> {
 		const existingJobRole = await prisma.jobRole.findUnique({
 			where: { jobRoleId: id },
@@ -238,9 +258,23 @@ export class JobRoleDao {
 			return false;
 		}
 
-		await prisma.jobRole.delete({
-			where: { jobRoleId: id },
-		});
+		try {
+			await prisma.jobRole.delete({
+				where: { jobRoleId: id },
+			});
+		} catch (error) {
+			// P2003: the FK from job-applications to job-roles is ON DELETE RESTRICT.
+			if (
+				error instanceof Prisma.PrismaClientKnownRequestError &&
+				error.code === "P2003"
+			) {
+				throw new Error(
+					"Cannot delete a job role with existing applications",
+				);
+			}
+
+			throw error;
+		}
 
 		return true;
 	}

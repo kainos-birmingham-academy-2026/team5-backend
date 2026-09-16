@@ -1,3 +1,4 @@
+import { Prisma } from "@prisma/client";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const prismaMock = vi.hoisted(() => ({
@@ -143,6 +144,30 @@ describe("JobRoleDao", () => {
 			take: 10,
 		});
 		expect(result).toEqual({ jobRoles: [], totalItems: 0 });
+	});
+
+	it("getReferenceData returns id-keyed capability and band lookups", async () => {
+		prismaMock.capability.findMany.mockResolvedValue([
+			{ capabilityId: 1, capabilityName: "Engineering" },
+		]);
+		prismaMock.band.findMany.mockResolvedValue([
+			{ nameId: 2, bandName: "Band 2" },
+		]);
+
+		const result = await new JobRoleDao().getReferenceData();
+
+		expect(prismaMock.capability.findMany).toHaveBeenCalledWith({
+			select: { capabilityId: true, capabilityName: true },
+			orderBy: { capabilityName: "asc" },
+		});
+		expect(prismaMock.band.findMany).toHaveBeenCalledWith({
+			select: { nameId: true, bandName: true },
+			orderBy: { bandName: "asc" },
+		});
+		expect(result).toEqual({
+			capabilities: [{ capabilityId: 1, capabilityName: "Engineering" }],
+			bands: [{ nameId: 2, bandName: "Band 2" }],
+		});
 	});
 
 	it("getFilterOptions returns sorted values from filterable fields", async () => {
@@ -333,5 +358,28 @@ describe("JobRoleDao", () => {
 		expect(prismaMock.jobRole.delete).toHaveBeenCalledWith({
 			where: { jobRoleId: 11 },
 		});
+	});
+
+	it("delete throws a clear error when the job role has existing applications", async () => {
+		prismaMock.jobRole.findUnique.mockResolvedValue(jobRoleRecord);
+		prismaMock.jobRole.delete.mockRejectedValue(
+			new Prisma.PrismaClientKnownRequestError("Foreign key constraint failed", {
+				code: "P2003",
+				clientVersion: "6.19.3",
+			}),
+		);
+
+		await expect(new JobRoleDao().delete(11)).rejects.toThrow(
+			"Cannot delete a job role with existing applications",
+		);
+	});
+
+	it("delete rethrows unrelated errors", async () => {
+		prismaMock.jobRole.findUnique.mockResolvedValue(jobRoleRecord);
+		prismaMock.jobRole.delete.mockRejectedValue(new Error("connection lost"));
+
+		await expect(new JobRoleDao().delete(11)).rejects.toThrow(
+			"connection lost",
+		);
 	});
 });

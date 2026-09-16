@@ -3,11 +3,13 @@ import type {
 	CreateJobRoleRequestDto,
 	JobRoleDetailedResponseDto,
 	JobRoleResponseDto,
+	UpdateJobRoleRequestDto,
 } from "../dtos/jobRoleDto";
 import type {
 	JobRoleFilterOptionsDto,
 	JobRoleFilters,
 } from "../dtos/jobRoleFilterDto";
+import type { JobRoleReferenceDataDto } from "../dtos/jobRoleReferenceDto";
 import type { PaginatedJobRolesDto } from "../dtos/paginationDto";
 import { JobRoleMapper } from "../mappers/jobRoleMapper";
 
@@ -42,6 +44,10 @@ export class JobRoleService {
 		return this.jobRoleDao.getFilterOptions();
 	}
 
+	async getReferenceOptions(): Promise<JobRoleReferenceDataDto> {
+		return this.jobRoleDao.getReferenceData();
+	}
+
 	async findById(id: number): Promise<JobRoleResponseDto | null> {
 		const jobRole = await this.jobRoleDao.findById(id);
 
@@ -59,14 +65,18 @@ export class JobRoleService {
 	async create(
 		jobRoleData: CreateJobRoleRequestDto,
 	): Promise<JobRoleResponseDto> {
-		const jobRole = await this.jobRoleDao.create(jobRoleData);
+		// New roles always start Open (US012); status is only changed via update.
+		const jobRole = await this.jobRoleDao.create({
+			...jobRoleData,
+			status: "Open",
+		});
 
 		return JobRoleMapper.toResponse(jobRole);
 	}
 
 	async update(
 		id: number,
-		jobRoleData: Partial<CreateJobRoleRequestDto>,
+		jobRoleData: UpdateJobRoleRequestDto,
 	): Promise<JobRoleResponseDto | null> {
 		if (!jobRoleData || Object.keys(jobRoleData).length === 0) {
 			throw new Error("No data provided for update");

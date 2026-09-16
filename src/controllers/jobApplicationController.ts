@@ -12,7 +12,7 @@ export class JobApplicationController {
 			return;
 		}
 
-		if (!req.authenticatedUser) {
+		if (!req.user) {
 			res.status(401).json({ error: "Authentication token is required" });
 			return;
 		}
@@ -24,7 +24,7 @@ export class JobApplicationController {
 
 		try {
 			const application = await this.jobApplicationService.apply({
-				applicantId: req.authenticatedUser.userId,
+				applicantId: req.user.userId,
 				jobRoleId,
 				cvData: req.file.buffer,
 				cvFileName: req.file.originalname,

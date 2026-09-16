@@ -214,18 +214,18 @@ describe("JobRoleController", () => {
 
 		expect(serviceMock.create).not.toHaveBeenCalled();
 		expect(res.status).toHaveBeenCalledWith(400);
-		expect(res.json).toHaveBeenCalledWith({ error: "Missing required fields" });
+		expect(res.json).toHaveBeenCalledWith(
+			expect.objectContaining({ error: "Invalid job role data" }),
+		);
 	});
 
 	it("createJobRole returns 201 when created", async () => {
 		const payload = {
-			jobRoleId: 1,
 			roleName: "Backend Engineer",
 			location: "Cairo",
 			capabilityId: 1,
 			bandId: 2,
 			closingDate: "2027-12-31",
-			status: "Open",
 		};
 		const createdResponse = {
 			jobRoleId: 1,
@@ -249,13 +249,11 @@ describe("JobRoleController", () => {
 
 	it("createJobRole returns 400 when service throws", async () => {
 		const payload = {
-			jobRoleId: 1,
 			roleName: "Backend Engineer",
 			location: "Cairo",
 			capabilityId: 1,
 			bandId: 2,
 			closingDate: "2027-12-31",
-			status: "Open",
 		};
 		const req = createMockReq({ body: payload });
 		const res = createMockRes();
@@ -387,5 +385,31 @@ describe("JobRoleController", () => {
 
 		expect(res.status).toHaveBeenCalledWith(204);
 		expect(res.send).toHaveBeenCalledOnce();
+	});
+
+	it("deleteJobRole returns 409 when the role has existing applications", async () => {
+		const req = createMockReq({ params: { id: "2" } as Request["params"] });
+		const res = createMockRes();
+		vi.mocked(serviceMock.delete).mockRejectedValue(
+			new Error("Cannot delete a job role with existing applications"),
+		);
+
+		await controller.deleteJobRole(req, res);
+
+		expect(res.status).toHaveBeenCalledWith(409);
+		expect(res.json).toHaveBeenCalledWith({
+			error: "Cannot delete a job role with existing applications",
+		});
+	});
+
+	it("deleteJobRole returns 400 when the service throws an unexpected error", async () => {
+		const req = createMockReq({ params: { id: "2" } as Request["params"] });
+		const res = createMockRes();
+		vi.mocked(serviceMock.delete).mockRejectedValue(new Error("db down"));
+
+		await controller.deleteJobRole(req, res);
+
+		expect(res.status).toHaveBeenCalledWith(400);
+		expect(res.json).toHaveBeenCalledWith({ error: "db down" });
 	});
 });

@@ -5,6 +5,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 const serviceMock = vi.hoisted(() => ({
 	findAll: vi.fn(),
 	getFilterOptions: vi.fn(),
+	getReferenceOptions: vi.fn(),
 	findById: vi.fn(),
 	findDetailedById: vi.fn(),
 	create: vi.fn(),
@@ -133,6 +134,30 @@ describe("Job Role Routes", () => {
 		expect(response.body).toEqual(options);
 	});
 
+	it("GET /job-roles/reference-data returns 403 for an applicant", async () => {
+		const response = await request(app)
+			.get("/job-roles/reference-data")
+			.set(applicantHeader);
+
+		expect(response.status).toBe(403);
+		expect(serviceMock.getReferenceOptions).not.toHaveBeenCalled();
+	});
+
+	it("GET /job-roles/reference-data returns id-keyed dropdown options for an admin", async () => {
+		const referenceData = {
+			capabilities: [{ capabilityId: 1, capabilityName: "Engineering" }],
+			bands: [{ nameId: 2, bandName: "Band 2" }],
+		};
+		serviceMock.getReferenceOptions.mockResolvedValue(referenceData);
+
+		const response = await request(app)
+			.get("/job-roles/reference-data")
+			.set(adminHeader);
+
+		expect(response.status).toBe(200);
+		expect(response.body).toEqual(referenceData);
+	});
+
 	it("GET /job-roles/:id returns 200 with role", async () => {
 		const role = {
 			jobRoleId: 1,
@@ -188,13 +213,11 @@ describe("Job Role Routes", () => {
 			.post("/job-roles")
 			.set(applicantHeader)
 			.send({
-				jobRoleId: 3,
 				roleName: "QA Engineer",
 				location: "Remote",
 				capabilityId: 2,
 				bandId: 1,
 				closingDate: "2027-10-10",
-				status: "Open",
 			});
 
 		expect(response.status).toBe(403);
@@ -225,13 +248,11 @@ describe("Job Role Routes", () => {
 
 	it("POST /job-roles returns 201 with created role", async () => {
 		const payload = {
-			jobRoleId: 3,
 			roleName: "QA Engineer",
 			location: "Remote",
 			capabilityId: 2,
 			bandId: 1,
 			closingDate: "2027-10-10",
-			status: "Open",
 		};
 		const created = {
 			jobRoleId: 3,
@@ -251,6 +272,7 @@ describe("Job Role Routes", () => {
 
 		expect(response.status).toBe(201);
 		expect(response.body).toEqual(created);
+		expect(serviceMock.create).toHaveBeenCalledWith(payload);
 	});
 
 	it("POST /job-roles returns 400 when required fields missing", async () => {
@@ -260,7 +282,7 @@ describe("Job Role Routes", () => {
 			.send({ roleName: "QA Engineer" });
 
 		expect(response.status).toBe(400);
-		expect(response.body).toEqual({ error: "Missing required fields" });
+		expect(response.body).toMatchObject({ error: "Invalid job role data" });
 		expect(serviceMock.create).not.toHaveBeenCalled();
 	});
 
@@ -273,13 +295,11 @@ describe("Job Role Routes", () => {
 			.post("/job-roles")
 			.set(adminHeader)
 			.send({
-				jobRoleId: 3,
 				roleName: "QA Engineer",
 				location: "Remote",
 				capabilityId: 2,
 				bandId: 1,
 				closingDate: "2027-10-10",
-				status: "Open",
 			});
 
 		expect(response.status).toBe(400);
@@ -377,5 +397,18 @@ describe("Job Role Routes", () => {
 
 		expect(response.status).toBe(404);
 		expect(response.body).toEqual({ error: "Job role not found" });
+	});
+
+	it("DELETE /job-roles/:id returns 409 when the role has existing applications", async () => {
+		serviceMock.delete.mockRejectedValue(
+			new Error("Cannot delete a job role with existing applications"),
+		);
+
+		const response = await request(app).delete("/job-roles/1").set(adminHeader);
+
+		expect(response.status).toBe(409);
+		expect(response.body).toEqual({
+			error: "Cannot delete a job role with existing applications",
+		});
 	});
 });

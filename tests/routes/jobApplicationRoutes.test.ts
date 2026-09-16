@@ -14,11 +14,21 @@ import app from "../../src/app";
 
 describe("Job Application Routes", () => {
 	const token = jwt.sign(
-		{ userId: "applicant-1", email: "applicant@example.com", roleId: 1 },
+		{
+			userId: "applicant-1",
+			email: "applicant@example.com",
+			roleId: 1,
+			role: "applicant",
+		},
 		process.env.JWT_SECRET || "your-secret-key-change-this",
 	);
 	const recruiterToken = jwt.sign(
-		{ userId: "recruiter-1", email: "recruiter@example.com", roleId: 2 },
+		{
+			userId: "recruiter-1",
+			email: "recruiter@example.com",
+			roleId: 2,
+			role: "recruiter",
+		},
 		process.env.JWT_SECRET || "your-secret-key-change-this",
 	);
 
@@ -66,7 +76,7 @@ describe("Job Application Routes", () => {
 
 		expect(response.status).toBe(401);
 		expect(response.body).toEqual({
-			error: "Authentication token is required",
+			error: "Authentication token required",
 		});
 	});
 
@@ -80,7 +90,7 @@ describe("Job Application Routes", () => {
 			});
 
 		expect(response.status).toBe(403);
-		expect(response.body).toEqual({ error: "Applicant access is required" });
+		expect(response.body).toEqual({ error: "Forbidden" });
 		expect(serviceMock.apply).not.toHaveBeenCalled();
 	});
 

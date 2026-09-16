@@ -41,6 +41,7 @@ describe("JobRoleService", () => {
 		daoMock = {
 			findAll: vi.fn(),
 			getFilterOptions: vi.fn(),
+			getReferenceData: vi.fn(),
 			findById: vi.fn(),
 			create: vi.fn(),
 			update: vi.fn(),
@@ -196,15 +197,26 @@ describe("JobRoleService", () => {
 		expect(result).toBeNull();
 	});
 
-	it("create returns mapped response dto", async () => {
+	it("getReferenceOptions returns id-keyed capability and band lookups", async () => {
+		const referenceData = {
+			capabilities: [{ capabilityId: 1, capabilityName: "Engineering" }],
+			bands: [{ nameId: 2, bandName: "Band 2" }],
+		};
+		vi.mocked(daoMock.getReferenceData).mockResolvedValue(referenceData);
+
+		const result = await service.getReferenceOptions();
+
+		expect(daoMock.getReferenceData).toHaveBeenCalled();
+		expect(result).toEqual(referenceData);
+	});
+
+	it("create forces status to Open and returns mapped response dto", async () => {
 		const payload = {
-			jobRoleId: 3,
 			roleName: "QA Engineer",
 			location: "Remote",
 			capabilityId: 2,
 			bandId: 1,
 			closingDate: "2027-10-10",
-			status: "Open",
 		};
 		const createdRole = new JobRole(
 			3,
@@ -221,7 +233,10 @@ describe("JobRoleService", () => {
 
 		const result = await service.create(payload);
 
-		expect(daoMock.create).toHaveBeenCalledWith(payload);
+		expect(daoMock.create).toHaveBeenCalledWith({
+			...payload,
+			status: "Open",
+		});
 		expect(result).toEqual({
 			jobRoleId: 3,
 			roleName: "QA Engineer",
