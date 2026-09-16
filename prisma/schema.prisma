@@ -66,8 +66,10 @@ model JobApplication {
   applicantId   String
   jobRoleId     Int
   cvData        Bytes
+  cvBlobName    String?
   cvFileName    String
   cvMimeType    String
+  cvScanStatus  String   @default("pending")
   status        String   @default("in progress")
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
