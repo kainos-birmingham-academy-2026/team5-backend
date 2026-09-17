@@ -124,7 +124,8 @@ Authenticates a user and returns a JWT token.
   {
     "userId": "user-uuid",
     "email": "user@example.com",
-    "roleId": "role-uuid",
+    "roleId": 1,
+    "role": "applicant",
     "iat": 1691419200,
     "exp": 1691505600
   }
@@ -209,19 +210,25 @@ tests/
 6. If no match: returns 401 Unauthorized
 7. Frontend stores token
 
-### Protected Routes (Future Implementation)
+### Protected Routes
 1. Frontend includes token in Authorization header: `Bearer <token>`
-2. Backend middleware verifies token signature and expiration
-3. If valid: extracts user information and proceeds
-4. If invalid: returns 401 Unauthorized
+2. `authMiddleware` verifies the token signature and expiration
+3. If valid: the decoded user (`userId`, `email`, `roleId`, `role`) is attached to `req.user`
+4. If missing or invalid: returns 401 Unauthorized
+5. Write endpoints (`POST`, `PUT`, `DELETE /job-roles`) also require `requireRole("admin")`
+6. Non-admin authenticated users receive 403 Forbidden on write endpoints
+7. `GET /auth/user/:id` is allowed only for the authenticated user (`req.user.userId === id`) or an admin
+8. `POST /auth/register` and `POST /auth/login` remain public
+9. `GET /` and `GET /health` require a valid JWT
 
 ## Security Considerations
 - **Password Storage**: All passwords are hashed with bcrypt (10 salt rounds) before storage
 - **Token Security**: 
   - Tokens use HS256 algorithm
-  - Secret key should be stored in environment variables (currently `JWT_SECRET`)
+  - `JWT_SECRET` is required at process start (no hardcoded fallback)
+  - Copy `.env.example` to `.env` for local development; CI and Docker runtime must set `JWT_SECRET`
   - Tokens expire after 24 hours
-  - Change `JWT_SECRET` to a strong value in production
+  - Use a strong unique `JWT_SECRET` in production
 - **HTTPS**: All API calls should use HTTPS in production
 - **Token Storage**: Frontend should use secure storage mechanism (HttpOnly cookies recommended)
 

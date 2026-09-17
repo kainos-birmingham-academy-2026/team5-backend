@@ -44,8 +44,9 @@ async function main() {
 
 	const applicantRoleId = roleIds.get("applicant");
 	const recruiterRoleId = roleIds.get("recruiter");
+	const adminRoleId = roleIds.get("admin");
 
-	if (!applicantRoleId || !recruiterRoleId) {
+	if (!applicantRoleId || !recruiterRoleId || !adminRoleId) {
 		throw new Error("Required roles were not seeded correctly");
 	}
 
@@ -451,6 +452,18 @@ reliability. Own the release pipeline and help teams deliver features with confi
 			email: "jane@example.com",
 			password: janePassword,
 			roleId: recruiterRoleId,
+		},
+	});
+
+	// Seed Alex Admin (admin)
+	const adminPassword = await hash("AdminPass@789");
+	await prisma.user.upsert({
+		where: { email: "admin@example.com" },
+		update: { password: adminPassword, roleId: adminRoleId },
+		create: {
+			email: "admin@example.com",
+			password: adminPassword,
+			roleId: adminRoleId,
 		},
 	});
 

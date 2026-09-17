@@ -7,6 +7,7 @@ import {
 	requireApplicant,
 	requireAuthentication,
 } from "../middleware/authenticationMiddleware.js";
+import { authMiddleware, requireRole } from "../middleware/authMiddleware.js";
 import { cvUpload } from "../middleware/cvUploadMiddleware.js";
 import { JobApplicationService } from "../services/jobApplicationService.js";
 import { JobRoleService } from "../services/jobRoleService.js";
@@ -27,14 +28,17 @@ const jobApplicationController = new JobApplicationController(
 
 jobRoleRouter.get(
 	"/job-roles",
+	authMiddleware,
 	jobRoleController.getAllJobRoles.bind(jobRoleController),
 );
 jobRoleRouter.get(
 	"/job-roles/filter-options",
+	authMiddleware,
 	jobRoleController.getFilterOptions.bind(jobRoleController),
 );
 jobRoleRouter.get(
 	"/job-roles/:id",
+	authMiddleware,
 	jobRoleController.getJobRoleById.bind(jobRoleController),
 );
 jobRoleRouter.post(
@@ -46,14 +50,20 @@ jobRoleRouter.post(
 );
 jobRoleRouter.post(
 	"/job-roles",
+	authMiddleware,
+	requireRole("admin"),
 	jobRoleController.createJobRole.bind(jobRoleController),
 );
 jobRoleRouter.put(
 	"/job-roles/:id",
+	authMiddleware,
+	requireRole("admin"),
 	jobRoleController.updateJobRole.bind(jobRoleController),
 );
 jobRoleRouter.delete(
 	"/job-roles/:id",
+	authMiddleware,
+	requireRole("admin"),
 	jobRoleController.deleteJobRole.bind(jobRoleController),
 );
 
