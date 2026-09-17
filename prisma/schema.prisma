@@ -65,7 +65,7 @@ model JobApplication {
   applicationId Int      @id @default(autoincrement())
   applicantId   String
   jobRoleId     Int
-  cvData        Bytes
+  cvData        Bytes?
   cvBlobName    String?
   cvFileName    String
   cvMimeType    String

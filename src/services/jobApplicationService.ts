@@ -5,12 +5,10 @@ import {
 import { JobApplicationDao } from "../daos/jobApplicationDao";
 import { JobRoleDao } from "../daos/jobRoleDao";
 import type {
-	CreateJobApplicationRequestDto,
+	ApplyForJobRoleRequestDto,
 	JobApplicationResponseDto,
 } from "../dtos/jobApplicationDto";
 import { JobApplicationMapper } from "../mappers/jobApplicationMapper";
-
-type ApplyForJobRoleRequestDto = Omit<CreateJobApplicationRequestDto, "status">;
 
 export class JobApplicationService {
 	constructor(

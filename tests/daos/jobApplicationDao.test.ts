@@ -20,8 +20,7 @@ describe("JobApplicationDao", () => {
 		applicationId: 1,
 		applicantId: "applicant-1",
 		jobRoleId: 2,
-		cvData: Buffer.from("cv-content"),
-		cvBlobName: null,
+		cvBlobName: "applications/applicant-1/cv-id.pdf",
 		cvFileName: "cv.pdf",
 		cvMimeType: "application/pdf",
 		cvScanStatus: "pending",
@@ -34,13 +33,12 @@ describe("JobApplicationDao", () => {
 		vi.resetAllMocks();
 	});
 
-	it("creates an application with CV data and returns Blob scan metadata", async () => {
+	it("creates an application with Blob scan metadata", async () => {
 		prismaMock.jobApplication.create.mockResolvedValue(applicationRecord);
 		const applicationData = {
 			applicantId: "applicant-1",
 			jobRoleId: 2,
-			cvData: Buffer.from("cv-content"),
-			cvBlobName: null,
+			cvBlobName: "applications/applicant-1/cv-id.pdf",
 			cvFileName: "cv.pdf",
 			cvMimeType: "application/pdf",
 			cvScanStatus: "pending",
@@ -50,17 +48,14 @@ describe("JobApplicationDao", () => {
 		const result = await new JobApplicationDao().create(applicationData);
 
 		expect(prismaMock.jobApplication.create).toHaveBeenCalledWith({
-			data: {
-				...applicationData,
-				cvData: new Uint8Array(applicationData.cvData),
-			},
+			data: applicationData,
 		});
 		expect(result).toEqual(
 			new JobApplication(
 				1,
 				"applicant-1",
 				2,
-				null,
+				"applications/applicant-1/cv-id.pdf",
 				"cv.pdf",
 				"application/pdf",
 				"pending",
