@@ -1,5 +1,5 @@
 import type { Request, Response } from "express";
-import type { CreateJobRoleRequestDto } from "../dtos/jobRoleDto";
+import { CreateJobRoleSchema, UpdateJobRoleSchema } from "../dtos/jobRoleDto";
 import { JobRoleFilterQuerySchema } from "../dtos/jobRoleFilterDto";
 import type { JobRoleService } from "../services/jobRoleService.js";
 
@@ -24,23 +24,17 @@ export class JobRoleController {
 	}
 
 	async createJobRole(req: Request, res: Response): Promise<void> {
-		const jobRoleData: CreateJobRoleRequestDto =
-			req.body as CreateJobRoleRequestDto;
-
-		if (
-			!jobRoleData.roleName ||
-			!jobRoleData.location ||
-			!jobRoleData.capabilityId ||
-			!jobRoleData.bandId ||
-			!jobRoleData.closingDate ||
-			!jobRoleData.status
-		) {
-			res.status(400).json({ error: "Missing required fields" });
+		const parsed = CreateJobRoleSchema.safeParse(req.body);
+		if (!parsed.success) {
+			res.status(400).json({
+				error: "Invalid job role data",
+				details: parsed.error.issues,
+			});
 			return;
 		}
 
 		try {
-			const createdJobRole = await this.jobRoleService.create(jobRoleData);
+			const createdJobRole = await this.jobRoleService.create(parsed.data);
 			res.status(201).json(createdJobRole);
 		} catch (error) {
 			const message =
@@ -57,14 +51,22 @@ export class JobRoleController {
 			return;
 		}
 
-		const jobRoleData: Partial<CreateJobRoleRequestDto> = req.body;
-		if (!jobRoleData || Object.keys(jobRoleData).length === 0) {
+		const parsed = UpdateJobRoleSchema.safeParse(req.body);
+		if (!parsed.success) {
+			res.status(400).json({
+				error: "Invalid job role data",
+				details: parsed.error.issues,
+			});
+			return;
+		}
+
+		if (Object.keys(parsed.data).length === 0) {
 			res.status(400).json({ error: "No data provided for update" });
 			return;
 		}
 
 		try {
-			const updatedJobRole = await this.jobRoleService.update(id, jobRoleData);
+			const updatedJobRole = await this.jobRoleService.update(id, parsed.data);
 			if (!updatedJobRole) {
 				res.status(404).json({ error: "Job role not found" });
 				return;
@@ -86,13 +88,23 @@ export class JobRoleController {
 			return;
 		}
 
-		const deletedJobRole = await this.jobRoleService.delete(id);
-		if (!deletedJobRole) {
-			res.status(404).json({ error: "Job role not found" });
-			return;
-		}
+		try {
+			const deletedJobRole = await this.jobRoleService.delete(id);
+			if (!deletedJobRole) {
+				res.status(404).json({ error: "Job role not found" });
+				return;
+			}
 
-		res.status(204).send();
+			res.status(204).send();
+		} catch (error) {
+			const message =
+				error instanceof Error ? error.message : "Unable to delete job role";
+			const status =
+				message === "Cannot delete a job role with existing applications"
+					? 409
+					: 400;
+			res.status(status).json({ error: message });
+		}
 	}
 
 	async getAllJobRoles(req: Request, res: Response): Promise<void> {
@@ -114,6 +126,11 @@ export class JobRoleController {
 
 	async getFilterOptions(_req: Request, res: Response): Promise<void> {
 		const options = await this.jobRoleService.getFilterOptions();
+		res.status(200).json(options);
+	}
+
+	async getReferenceOptions(_req: Request, res: Response): Promise<void> {
+		const options = await this.jobRoleService.getReferenceOptions();
 		res.status(200).json(options);
 	}
 }

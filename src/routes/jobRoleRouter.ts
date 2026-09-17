@@ -3,10 +3,6 @@ import { JobApplicationController } from "../controllers/jobApplicationControlle
 import { JobRoleController } from "../controllers/jobRoleController.js";
 import { JobApplicationDao } from "../daos/jobApplicationDao.js";
 import { JobRoleDao } from "../daos/jobRoleDao.js";
-import {
-	requireApplicant,
-	requireAuthentication,
-} from "../middleware/authenticationMiddleware.js";
 import { authMiddleware, requireRole } from "../middleware/authMiddleware.js";
 import { cvUpload } from "../middleware/cvUploadMiddleware.js";
 import { JobApplicationService } from "../services/jobApplicationService.js";
@@ -28,13 +24,17 @@ const jobApplicationController = new JobApplicationController(
 
 jobRoleRouter.get(
 	"/job-roles",
-	authMiddleware,
 	jobRoleController.getAllJobRoles.bind(jobRoleController),
 );
 jobRoleRouter.get(
 	"/job-roles/filter-options",
-	authMiddleware,
 	jobRoleController.getFilterOptions.bind(jobRoleController),
+);
+jobRoleRouter.get(
+	"/job-roles/reference-data",
+	authMiddleware,
+	requireRole("admin"),
+	jobRoleController.getReferenceOptions.bind(jobRoleController),
 );
 jobRoleRouter.get(
 	"/job-roles/:id",
@@ -43,8 +43,8 @@ jobRoleRouter.get(
 );
 jobRoleRouter.post(
 	"/job-roles/:id/applications",
-	requireAuthentication,
-	requireApplicant,
+	authMiddleware,
+	requireRole("applicant"),
 	cvUpload.single("cv"),
 	jobApplicationController.apply.bind(jobApplicationController),
 );
