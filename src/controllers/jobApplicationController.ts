@@ -1,6 +1,12 @@
 import type { Request, Response } from "express";
 import type { JobApplicationService } from "../services/jobApplicationService";
 
+const APPLICATION_VALIDATION_ERRORS = new Set([
+	"Job role is not open for applications",
+	"Job role has no open positions",
+	"Applicant has already applied for this job role",
+]);
+
 export class JobApplicationController {
 	constructor(private readonly jobApplicationService: JobApplicationService) {}
 
@@ -33,11 +39,18 @@ export class JobApplicationController {
 
 			res.status(201).json(application);
 		} catch (error) {
-			const message =
-				error instanceof Error ? error.message : "Unable to submit application";
-			res.status(message === "Job role not found" ? 404 : 400).json({
-				error: message,
-			});
+			const message = error instanceof Error ? error.message : undefined;
+			if (message === "Job role not found") {
+				res.status(404).json({ error: message });
+				return;
+			}
+
+			if (message && APPLICATION_VALIDATION_ERRORS.has(message)) {
+				res.status(400).json({ error: message });
+				return;
+			}
+
+			res.status(500).json({ error: "Unable to submit application" });
 		}
 	}
 }

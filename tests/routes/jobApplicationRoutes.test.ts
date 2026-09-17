@@ -41,8 +41,10 @@ describe("Job Application Routes", () => {
 			applicationId: 1,
 			applicantId: "applicant-1",
 			jobRoleId: 2,
+			cvBlobName: null,
 			cvFileName: "cv.pdf",
 			cvMimeType: "application/pdf",
+			cvScanStatus: "pending",
 			status: "in progress",
 			createdAt: new Date("2026-09-04T12:00:00.000Z"),
 			updatedAt: new Date("2026-09-04T12:00:00.000Z"),
@@ -149,5 +151,22 @@ describe("Job Application Routes", () => {
 
 		expect(response.status).toBe(400);
 		expect(response.body).toEqual({ error });
+	});
+
+	it("does not expose storage or configuration errors", async () => {
+		serviceMock.apply.mockRejectedValue(
+			new Error("AZURE_STORAGE_ACCOUNT_NAME is not configured"),
+		);
+
+		const response = await request(app)
+			.post("/job-roles/2/applications")
+			.set("Authorization", `Bearer ${token}`)
+			.attach("cv", Buffer.from("cv-content"), {
+				filename: "cv.pdf",
+				contentType: "application/pdf",
+			});
+
+		expect(response.status).toBe(500);
+		expect(response.body).toEqual({ error: "Unable to submit application" });
 	});
 });

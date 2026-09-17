@@ -9,8 +9,10 @@ export class JobApplicationDao {
 			application.applicationId,
 			application.applicantId,
 			application.jobRoleId,
+			application.cvBlobName,
 			application.cvFileName,
 			application.cvMimeType,
+			application.cvScanStatus,
 			application.status,
 			application.createdAt,
 			application.updatedAt,
@@ -31,9 +33,8 @@ export class JobApplicationDao {
 	async create(
 		applicationData: CreateJobApplicationRequestDto,
 	): Promise<JobApplication> {
-		const cvData = new Uint8Array(applicationData.cvData);
 		const application = await prisma.jobApplication.create({
-			data: { ...applicationData, cvData },
+			data: applicationData,
 		});
 
 		return this.toModel(application);

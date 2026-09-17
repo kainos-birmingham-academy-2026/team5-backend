@@ -467,6 +467,7 @@ reliability. Own the release pipeline and help teams deliver features with confi
 		},
 	});
 
+	await prisma.jobApplication.deleteMany();
 	await prisma.jobRole.deleteMany();
 
 	for (const { capabilityName, bandName, ...jobRole } of jobRoles) {
