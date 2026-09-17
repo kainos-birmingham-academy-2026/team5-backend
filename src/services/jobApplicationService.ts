@@ -6,8 +6,10 @@ import { JobApplicationDao } from "../daos/jobApplicationDao";
 import { JobRoleDao } from "../daos/jobRoleDao";
 import type {
 	ApplyForJobRoleRequestDto,
+	CreateJobApplicationRequestDto,
 	JobApplicationResponseDto,
 } from "../dtos/jobApplicationDto";
+import Logger from "../lib/logger";
 import { JobApplicationMapper } from "../mappers/jobApplicationMapper";
 
 export class JobApplicationService {
@@ -50,14 +52,26 @@ export class JobApplicationService {
 
 		let application;
 		try {
-			application = await this.jobApplicationDao.create({
-				...applicationData,
+			const applicationToCreate: CreateJobApplicationRequestDto = {
+				applicantId: applicationData.applicantId,
+				jobRoleId: applicationData.jobRoleId,
 				cvBlobName,
+				cvFileName: applicationData.cvFileName,
+				cvMimeType: applicationData.cvMimeType,
 				cvScanStatus: "pending",
 				status: "in progress",
-			});
+			};
+			application = await this.jobApplicationDao.create(applicationToCreate);
 		} catch (error) {
-			await this.cvBlobStorageClient.deleteCv(cvBlobName);
+			try {
+				await this.cvBlobStorageClient.deleteCv(cvBlobName);
+			} catch (cleanupError) {
+				const message =
+					cleanupError instanceof Error
+						? cleanupError.message
+						: "Unknown cleanup failure";
+				Logger.error(`Failed to delete uploaded CV ${cvBlobName}: ${message}`);
+			}
 			throw error;
 		}
 

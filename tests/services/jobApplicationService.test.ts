@@ -81,8 +81,11 @@ describe("JobApplicationService", () => {
 		const result = await service.apply(applicationData);
 
 		expect(jobApplicationDaoMock.create).toHaveBeenCalledWith({
-			...applicationData,
+			applicantId: "applicant-1",
+			jobRoleId: 2,
 			cvBlobName: "applications/applicant-1/cv-id.pdf",
+			cvFileName: "cv.pdf",
+			cvMimeType: "application/pdf",
 			cvScanStatus: "pending",
 			status: "in progress",
 		});
@@ -171,6 +174,26 @@ describe("JobApplicationService", () => {
 
 		expect(cvBlobStorageClientMock.deleteCv).toHaveBeenCalledWith(
 			"applications/applicant-1/cv-id.pdf",
+		);
+	});
+
+	it("preserves the database error when Blob cleanup fails", async () => {
+		vi.mocked(jobRoleDaoMock.findById).mockResolvedValue(jobRole);
+		vi.mocked(
+			jobApplicationDaoMock.findByApplicantAndJobRole,
+		).mockResolvedValue(null);
+		vi.mocked(cvBlobStorageClientMock.uploadCv).mockResolvedValue(
+			"applications/applicant-1/cv-id.pdf",
+		);
+		vi.mocked(jobApplicationDaoMock.create).mockRejectedValue(
+			new Error("Database unavailable"),
+		);
+		vi.mocked(cvBlobStorageClientMock.deleteCv).mockRejectedValue(
+			new Error("Blob cleanup unavailable"),
+		);
+
+		await expect(service.apply(applicationData)).rejects.toThrow(
+			"Database unavailable",
 		);
 	});
 
