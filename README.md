@@ -131,6 +131,10 @@ standard local PostgreSQL installation on `5432`.
 - `PUT /job-roles/:id` - Update job role
 - `DELETE /job-roles/:id` - Delete job role
 
+### Analytics (admin only)
+- `GET /analytics/overview` - Aggregate recruitment KPIs, applications trend, breakdowns, top and cold roles, and CV scan data quality for a date range. Query parameters: `preset` (`7d`, `30d`, `90d`, `custom`, default `30d`), `from`, and `to` (`YYYY-MM-DD`, required when `preset=custom`, maximum span 366 days).
+- `GET /analytics/job-roles` - Paginated list of job roles with their application count for the same date range. Adds `page`, `pageSize`, `sortBy` (`applications`, `roleName`, `closingDate`, `numberOfOpenPositions`), `sortOrder` (`asc`, `desc`), and the optional filters `capability`, `band`, `location`, `status`, and `roleName`.
+
 ### AI Assistant
 - `POST /assistant/questions` - Ask a question grounded only in the current job roles
 
