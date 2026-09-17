@@ -11,6 +11,7 @@ import type {
 } from "../dtos/jobApplicationDto";
 import Logger from "../lib/logger";
 import { JobApplicationMapper } from "../mappers/jobApplicationMapper";
+import type { JobApplication } from "../models/jobApplication";
 
 export class JobApplicationService {
 	constructor(
@@ -50,7 +51,7 @@ export class JobApplicationService {
 			applicationData.cvMimeType,
 		);
 
-		let application;
+		let application: JobApplication;
 		try {
 			const applicationToCreate: CreateJobApplicationRequestDto = {
 				applicantId: applicationData.applicantId,

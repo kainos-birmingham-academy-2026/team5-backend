@@ -1,6 +1,6 @@
+import { randomUUID } from "node:crypto";
 import { DefaultAzureCredential } from "@azure/identity";
 import { BlobServiceClient } from "@azure/storage-blob";
-import { randomUUID } from "node:crypto";
 
 const FILE_EXTENSION_BY_MIME_TYPE: Record<string, string> = {
 	"application/pdf": "pdf",
@@ -34,7 +34,8 @@ export class AzureBlobStorageClient implements CvBlobStorageClient {
 		}
 
 		const blobName = `applications/${applicantId}/${randomUUID()}.${fileExtension}`;
-		const blockBlobClient = this.getContainerClient().getBlockBlobClient(blobName);
+		const blockBlobClient =
+			this.getContainerClient().getBlockBlobClient(blobName);
 		await blockBlobClient.uploadData(cvData, {
 			blobHTTPHeaders: { blobContentType: cvMimeType },
 		});
@@ -69,9 +70,7 @@ export class AzureBlobStorageClient implements CvBlobStorageClient {
 	private getRequiredEnvironmentVariable(name: string): string {
 		const value = process.env[name]?.trim();
 		if (!value) {
-			throw new AzureBlobStorageConfigurationError(
-				`${name} is not configured`,
-			);
+			throw new AzureBlobStorageConfigurationError(`${name} is not configured`);
 		}
 
 		return value;

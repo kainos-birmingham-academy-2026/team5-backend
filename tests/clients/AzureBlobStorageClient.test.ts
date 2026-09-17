@@ -65,9 +65,7 @@ describe("AzureBlobStorageClient", () => {
 		);
 
 		expect(blobName).toMatch(/^applications\/applicant-1\/.+\.pdf$/);
-		expect(azureMocks.getContainerClient).toHaveBeenCalledWith(
-			"cv-quarantine",
-		);
+		expect(azureMocks.getContainerClient).toHaveBeenCalledWith("cv-quarantine");
 		expect(azureMocks.getBlockBlobClient).toHaveBeenCalledWith(blobName);
 		expect(azureMocks.uploadData).toHaveBeenCalledWith(cvData, {
 			blobHTTPHeaders: { blobContentType: "application/pdf" },
@@ -75,7 +73,9 @@ describe("AzureBlobStorageClient", () => {
 	});
 
 	it("deletes a Blob including its snapshots", async () => {
-		await new AzureBlobStorageClient().deleteCv("applications/applicant-1/cv.pdf");
+		await new AzureBlobStorageClient().deleteCv(
+			"applications/applicant-1/cv.pdf",
+		);
 
 		expect(azureMocks.deleteBlob).toHaveBeenCalledWith(
 			"applications/applicant-1/cv.pdf",
